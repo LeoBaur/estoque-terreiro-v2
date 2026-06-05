@@ -3,14 +3,18 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 
+
 // 1. Conexão com o Firebase
-
-admin.initializeApp();
-
-const db = admin.firestore();
-const app = express();
-app.use(cors({ origin: true }));
-app.use(express.json());
+if (process.env.FIREBASE_CREDENTIALS) {
+    // Se estiver no Render, usa a variável de ambiente segura
+    const credentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
+    admin.initializeApp({
+        credential: admin.credential.cert(credentials)
+    });
+} else {
+    // Se estiver local, usa o padrão
+    admin.initializeApp();
+}
 
 // 2. Guardião de Permissões
 const verificarPermissao = (permissaoExigida) => {
