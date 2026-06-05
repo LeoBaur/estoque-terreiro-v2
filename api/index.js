@@ -3,18 +3,22 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
 
-
-// 1. Conexão com o Firebase
+// 1. Conexão com o Firebase (Configurada para o Render e Local)
 if (process.env.FIREBASE_CREDENTIALS) {
-    // Se estiver no Render, usa a variável de ambiente segura
     const credentials = JSON.parse(process.env.FIREBASE_CREDENTIALS);
     admin.initializeApp({
         credential: admin.credential.cert(credentials)
     });
 } else {
-    // Se estiver local, usa o padrão
     admin.initializeApp();
 }
+
+// ATENÇÃO: Estas linhas precisam ficar aqui fora, livres de qualquer chave { }
+const db = admin.firestore();
+const app = express(); 
+
+app.use(cors({ origin: true }));
+app.use(express.json());
 
 // 2. Guardião de Permissões
 const verificarPermissao = (permissaoExigida) => {
@@ -39,11 +43,10 @@ const verificarPermissao = (permissaoExigida) => {
 };
 
 // ==========================================
-// ROTAS DE RELATÓRIOS E INTELIGÊNCIA (NOVO)
+// ROTAS DE RELATÓRIOS E INTELIGÊNCIA
 // ==========================================
 app.get('/dashboard', verificarPermissao('podeCadastrarItens'), async (req, res) => {
     try {
-        // 1. Verifica os itens atuais para o Alerta de Reposição
         const itensSnap = await db.collection('itens').get();
         let alertas = [];
         
@@ -54,7 +57,6 @@ app.get('/dashboard', verificarPermissao('podeCadastrarItens'), async (req, res)
             }
         });
 
-        // 2. Lê o Histórico para calcular o consumo dos últimos 30 dias
         const histSnap = await db.collection('historico').where('tipoMovimentacao', '==', 'Saída').get();
         
         const trintaDiasAtras = new Date();
@@ -64,9 +66,8 @@ app.get('/dashboard', verificarPermissao('podeCadastrarItens'), async (req, res)
         
         histSnap.forEach(doc => {
             const data = doc.data();
-            const dataTransacao = data.data.toDate(); // Converte data do Firebase para JS
+            const dataTransacao = data.data.toDate();
             
-            // Filtra em memória para evitar erros de indexação no Firebase do usuário
             if (dataTransacao >= trintaDiasAtras) {
                 if (!consumo[data.itemId]) {
                     consumo[data.itemId] = { nome: data.nomeItem, totalGasto: 0 };
@@ -75,7 +76,6 @@ app.get('/dashboard', verificarPermissao('podeCadastrarItens'), async (req, res)
             }
         });
 
-        // Transforma num array e ordena do que mais gastou para o que menos gastou
         let rankingConsumo = Object.values(consumo).sort((a, b) => b.totalGasto - a.totalGasto);
 
         res.status(200).json({ alertas, rankingConsumo });
@@ -122,9 +122,9 @@ app.delete('/usuarios/:cpf', verificarPermissao('masterAdmin'), async (req, res)
 // ==========================================
 app.get('/categorias', verificarPermissao('podeCadastrarItens'), async (req, res) => {
     const snapshot = await db.collection('categorias').get();
-    const categorias = [];
-    snapshot.forEach(doc => categorias.push({ id: doc.id, ...doc.data() }));
-    res.status(200).json(categorias);
+    const categories = [];
+    snapshot.forEach(doc => categories.push({ id: doc.id, ...doc.data() }));
+    res.status(200).json(categories);
 });
 
 app.post('/categorias', verificarPermissao('podeCadastrarItens'), async (req, res) => {
@@ -136,24 +136,20 @@ app.post('/categorias', verificarPermissao('podeCadastrarItens'), async (req, re
     res.status(201).json({ id: nova.id });
 });
 
-// ROTA NOVA: Editar o nome da categoria e atualizar os produtos ligados a ela
 app.put('/categorias/:id', verificarPermissao('podeCadastrarItens'), async (req, res) => {
     const { id } = req.params;
     const { nome, nomeAntigo } = req.body;
     const nomeLimpo = nome.trim();
 
-    // Verifica se já existe outra categoria com esse novo nome escolhido
     const snapshot = await db.collection('categorias').get();
     const jaExiste = snapshot.docs.some(doc => doc.id !== id && doc.data().nome.toLowerCase() === nomeLimpo.toLowerCase());
     if (jaExiste) return res.status(400).json({ erro: 'Já existe outra categoria com este nome!' });
 
-    // 1. Atualiza o nome da categoria
     await db.collection('categorias').doc(id).update({ nome: nomeLimpo });
 
-    // 2. Procura todos os itens que usavam o nome antigo e atualiza para o novo
     if (nomeAntigo) {
         const itensSnap = await db.collection('itens').where('categoria', '==', nomeAntigo).get();
-        const batch = db.batch(); // O batch permite atualizar dezenas de itens ao mesmo tempo de forma super rápida
+        const batch = db.batch();
         itensSnap.forEach(doc => {
             batch.update(doc.ref, { categoria: nomeLimpo });
         });
@@ -189,17 +185,12 @@ app.put('/itens/:id/abastecer', verificarPermissao('podeCadastrarItens'), async 
     res.json({ mensagem: 'Estoque abastecido', novoEstoque: novaQuantidade });
 });
 
-// ROTA NOVA: Editar nome do produto
 app.put('/itens/:id/editar', verificarPermissao('podeCadastrarItens'), async (req, res) => {
-    const { id } = req.params;
-    const { novoNome } = req.body;
-
+    const { id } = req.params; const { novoNome } = req.body;
     if (!novoNome || novoNome.trim() === "") return res.status(400).json({ erro: 'Nome inválido.' });
-
     const itemRef = db.collection('itens').doc(id);
     await itemRef.update({ nome: novoNome.trim() });
-    
-    res.json({ mensagem: 'Nome do produto atualizado com sucesso.' });
+    res.json({ mensagem: 'Nome do produto updated.' });
 });
 
 app.put('/itens/:id/baixa', verificarPermissao('podeDarBaixa'), async (req, res) => {
@@ -216,6 +207,12 @@ app.put('/itens/:id/baixa', verificarPermissao('podeDarBaixa'), async (req, res)
 
 app.delete('/itens/:id', verificarPermissao('podeCadastrarItens'), async (req, res) => {
     await db.collection('itens').doc(req.params.id).delete(); res.json({ mensagem: 'Deletado.' });
+});
+
+// 3. Inicialização ativa do servidor para o ambiente do Render
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor do Guardião ativo e rodando na porta ${PORT}`);
 });
 
 module.exports = app;
