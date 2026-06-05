@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+const path = require('path');
 
 // 1. Conexão com o Firebase (Configurada para o Render e Local)
 if (process.env.FIREBASE_CREDENTIALS) {
@@ -19,6 +20,7 @@ const app = express();
 
 app.use(cors({ origin: true }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../public')));
 
 // 2. Guardião de Permissões
 const verificarPermissao = (permissaoExigida) => {
