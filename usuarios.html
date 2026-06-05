@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master - Casa do Pai Chico</title>
+    <style>
+        :root { --cor-fundo: #f4f4f9; --cor-texto: #333333; --cor-master: #D4AF37; --cor-card: #ffffff; --cor-perigo: #e74c3c; --cor-edicao: #3498db; }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { max-width: 90px; border-radius: 50%; margin-bottom: 10px; }
+        .titulo-terreiro { font-size: 20px; font-weight: bold; margin: 0; color: #333; text-transform: uppercase; }
+        
+        .container { background: var(--cor-card); padding: 25px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 100%; max-width: 500px; box-sizing: border-box; margin-bottom: 20px;}
+        
+        label { font-weight: bold; margin-top: 15px; display: block; color: #555; font-size: 13px; text-transform: uppercase; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 15px; background-color: #fafafa; }
+        input:disabled { background-color: #e9ecef; cursor: not-allowed; color: #888; }
+        
+        .caixa-permissoes { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #eee;}
+        .permissao-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px;}
+        .permissao-item input { width: 18px; height: 18px; cursor: pointer; }
+
+        .btn-admin { background-color: var(--cor-master); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 20px;}
+        .btn-acao { color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; width: 100%;}
+        
+        .lista-gerenciamento { margin-top: 10px; max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 5px; background: #fff;}
+        .item-lista { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;}
+        .badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; color: white; font-weight: bold; margin-right: 5px;}
+        
+        #mensagem { text-align: center; font-weight: bold; font-size: 14px; padding: 10px; border-radius: 8px; display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; z-index: 1000;}
+    </style>
+</head>
+<body>
+
+    <div id="mensagem"></div>
+
+    <div class="header">
+        <img src="logo-terreiro.png" alt="Logo" class="logo">
+        <h1 class="titulo-terreiro">Diretoria</h1>
+        <p style="margin:0; font-size:14px; color:#777;">Gestão de Usuários e Permissões</p>
+    </div>
+
+    <div class="container" style="padding: 15px; border-left: 4px solid var(--cor-master);">
+        <label style="margin-top:0;">Sua Credencial MASTER (CPF):</label>
+        <input type="text" id="masterId" placeholder="Apenas números..." inputmode="numeric" onchange="carregarUsuarios()">
+    </div>
+
+    <div class="container" id="areaFormulario">
+        <h2 id="tituloForm" style="color: var(--cor-master); margin-top: 0;">👤 Novo Integrante</h2>
+        
+        <label>CPF do Usuário:</label>
+        <input type="text" id="novoCpf" placeholder="Apenas números..." inputmode="numeric">
+
+        <label>Nome Completo:</label>
+        <input type="text" id="novoNome" placeholder="Ex: João da Silva">
+
+        <label>E-mail:</label>
+        <input type="email" id="novoEmail" placeholder="joao@email.com">
+
+        <label>Configurar Acessos:</label>
+        <div class="caixa-permissoes">
+            <div class="permissao-item">
+                <input type="checkbox" id="checkAtivo" checked> <b>Conta Ativa</b> (Acesso ao sistema)
+            </div>
+            <div class="permissao-item">
+                <input type="checkbox" id="checkRetirada" checked> <b>Operacional:</b> Pode dar baixa.
+            </div>
+            <div class="permissao-item">
+                <input type="checkbox" id="checkAdmin"> <b>Almoxarife:</b> Pode gerenciar produtos.
+            </div>
+            <div class="permissao-item">
+                <input type="checkbox" id="checkMaster"> <b style="color:var(--cor-master)">Diretoria (Master)</b>
+            </div>
+        </div>
+
+        <button class="btn-admin" id="btnSalvar" onclick="salvarUsuario()">Cadastrar no Sistema</button>
+        <button class="btn-admin" id="btnCancelarEdicao" style="background:transparent; color:#555; border:2px solid #ccc; margin-top:10px; display:none;" onclick="cancelarEdicao()">Cancelar Edição</button>
+    </div>
+
+    <div class="container">
+        <h2 style="color: var(--cor-master); margin-top: 0;">👥 Equipe Cadastrada</h2>
+        <div class="lista-gerenciamento" id="listaUsuarios">
+            <div style="padding:10px; color:#888; text-align:center;">Digite seu CPF lá em cima primeiro.</div>
+        </div>
+        
+        <button class="btn-admin" style="background:transparent; color:#555; border:2px solid #ccc; margin-top: 25px;" onclick="window.location.href='tela.html'">Voltar para o Início</button>
+    </div>
+
+    <script>
+        const urlBase = 'http://localhost:3000';
+        let usuariosSalvos = []; 
+        let modoEdicao = false; // Flag para saber se estamos editando ou criando
+
+        window.onload = () => {
+            const idSalvo = localStorage.getItem('usuario_terreiro');
+            if (idSalvo) {
+                document.getElementById('masterId').value = idSalvo;
+                carregarUsuarios();
+            }
+        };
+
+        async function carregarUsuarios() {
+            const masterId = document.getElementById('masterId').value;
+            localStorage.setItem('usuario_terreiro', masterId);
+            
+            try {
+                const res = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } });
+                if (res.ok) {
+                    usuariosSalvos = await res.json();
+                    renderizarLista();
+                }
+            } catch (e) { mostrarAviso("Erro ao carregar usuários", "red"); }
+        }
+
+        function renderizarLista() {
+            const divLista = document.getElementById('listaUsuarios');
+            divLista.innerHTML = '';
+            
+            usuariosSalvos.forEach(user => {
+                let badges = '';
+                if(user.masterAdmin) badges += `<span class="badge" style="background:var(--cor-master)">MASTER</span>`;
+                if(user.podeCadastrarItens) badges += `<span class="badge" style="background:#2c3e50">ALMOXARIFE</span>`;
+                if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`;
+                
+                divLista.innerHTML += `
+                    <div class="item-lista">
+                        <div>
+                            <b>${user.nome}</b> <br>
+                            <small style="color:#888;">CPF: ${user.id}</small><br>
+                            ${badges}
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:5px; min-width: 70px;">
+                            <button class="btn-acao" style="background:var(--cor-edicao)" onclick="prepararEdicao('${user.id}')">Editar</button>
+                            <button class="btn-acao" style="background:#555" onclick="alterarStatus('${user.id}', ${!user.ativo})">
+                                ${user.ativo ? 'Bloquear' : 'Liberar'}
+                            </button>
+                            <button class="btn-acao" style="background:var(--cor-perigo)" onclick="deletarUsuario('${user.id}')">Excluir</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // ==========================================
+        // LÓGICA DE EDIÇÃO E CADASTRO
+        // ==========================================
+        function prepararEdicao(cpfClicado) {
+            const user = usuariosSalvos.find(u => u.id === cpfClicado);
+            if(!user) return;
+
+            modoEdicao = true;
+            document.getElementById('tituloForm').innerText = "✏️ Editar Integrante";
+            
+            const campoCpf = document.getElementById('novoCpf');
+            campoCpf.value = user.id;
+            campoCpf.disabled = true; // Impede alterar o CPF de quem já existe
+
+            document.getElementById('novoNome').value = user.nome;
+            document.getElementById('novoEmail').value = user.email || '';
+            document.getElementById('checkAtivo').checked = user.ativo;
+            document.getElementById('checkRetirada').checked = user.podeDarBaixa;
+            document.getElementById('checkAdmin').checked = user.podeCadastrarItens;
+            document.getElementById('checkMaster').checked = user.masterAdmin;
+
+            document.getElementById('btnSalvar').innerText = "Salvar Alterações";
+            document.getElementById('btnCancelarEdicao').style.display = "block";
+            
+            // Rola a tela suavemente para o formulário
+            document.getElementById('areaFormulario').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelarEdicao() {
+            modoEdicao = false;
+            document.getElementById('tituloForm').innerText = "👤 Novo Integrante";
+            
+            const campoCpf = document.getElementById('novoCpf');
+            campoCpf.value = '';
+            campoCpf.disabled = false;
+
+            document.getElementById('novoNome').value = '';
+            document.getElementById('novoEmail').value = '';
+            document.getElementById('checkAtivo').checked = true;
+            document.getElementById('checkRetirada').checked = true;
+            document.getElementById('checkAdmin').checked = false;
+            document.getElementById('checkMaster').checked = false;
+
+            document.getElementById('btnSalvar').innerText = "Cadastrar no Sistema";
+            document.getElementById('btnCancelarEdicao').style.display = "none";
+        }
+
+        async function salvarUsuario() {
+            const masterId = document.getElementById('masterId').value;
+            const cpf = document.getElementById('novoCpf').value;
+            
+            const payload = {
+                cpf: cpf,
+                nome: document.getElementById('novoNome').value,
+                email: document.getElementById('novoEmail').value,
+                ativo: document.getElementById('checkAtivo').checked,
+                podeDarBaixa: document.getElementById('checkRetirada').checked,
+                podeCadastrarItens: document.getElementById('checkAdmin').checked,
+                masterAdmin: document.getElementById('checkMaster').checked
+            };
+
+            if(!payload.cpf || !payload.nome) return mostrarAviso("CPF e Nome são obrigatórios!", "red");
+
+            // Define se vai usar POST (Criar) ou PUT (Atualizar) baseado no Modo de Edição
+            const metodoHTTP = modoEdicao ? 'PUT' : 'POST';
+            const urlFinal = modoEdicao ? `${urlBase}/usuarios/${cpf}` : `${urlBase}/usuarios`;
+
+            const res = await fetch(urlFinal, {
+                method: metodoHTTP,
+                headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId },
+                body: JSON.stringify(payload)
+            });
+            const dados = await res.json();
+
+            if(res.ok) {
+                mostrarAviso(modoEdicao ? "Atualizado com sucesso!" : "Usuário cadastrado!", "green");
+                cancelarEdicao(); // Limpa o formulário e volta pro modo de Cadastro
+                carregarUsuarios(); // Atualiza a lista
+            } else {
+                mostrarAviso(dados.erro, "red");
+            }
+        }
+
+        async function alterarStatus(cpf, novoStatus) {
+            const masterId = document.getElementById('masterId').value;
+            const res = await fetch(`${urlBase}/usuarios/${cpf}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId },
+                body: JSON.stringify({ ativo: novoStatus })
+            });
+            if(res.ok) carregarUsuarios();
+            else mostrarAviso((await res.json()).erro, "red");
+        }
+
+        async function deletarUsuario(cpf) {
+            if(!confirm("Certeza que deseja DELETAR este usuário definitivamente?")) return;
+            const masterId = document.getElementById('masterId').value;
+            const res = await fetch(`${urlBase}/usuarios/${cpf}`, { method: 'DELETE', headers: { 'x-usuario-id': masterId } });
+            if(res.ok) carregarUsuarios();
+            else mostrarAviso((await res.json()).erro, "red");
+        }
+
+        function mostrarAviso(texto, cor) {
+            const div = document.getElementById('mensagem');
+            div.innerHTML = texto;
+            div.style.display = 'block';
+            if(cor === "red") { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; }
+            if(cor === "green") { div.style.backgroundColor = "#e8f5e9"; div.style.color = "#2e7d32"; }
+            setTimeout(() => div.style.display = 'none', 3000);
+        }
+    </script>
+</body>
+</html>

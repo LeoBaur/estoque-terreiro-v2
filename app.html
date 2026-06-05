@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guardião - Casa do Pai Chico</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --cor-fundo: #f4f4f9; --cor-texto: #333333;
+            --cor-primaria: #8B0000; --cor-admin: #2c3e50; --cor-master: #D4AF37; --cor-painel: #00796b;
+            --cor-card: #ffffff; --cor-perigo: #e74c3c; --cor-selecionado: #f8d7da; --cor-sucesso: #2e7d32;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto); margin: 0; padding: 20px 20px 90px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
+        .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 500px;}
+        .logo { max-width: 100px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 8px; }
+        .titulo-terreiro { font-size: 24px; font-weight: bold; margin: 0; color: #222; text-transform: uppercase; letter-spacing: 1px;}
+        .subtitulo-sistema { font-size: 13px; color: #666; margin-top: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
+        .container { background: var(--cor-card); padding: 25px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); width: 100%; max-width: 500px; box-sizing: border-box; }
+        .secao-app { display: none; } .secao-app.ativa { display: block; }
+        label { font-weight: bold; margin-top: 15px; display: block; color: #555; font-size: 13px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 14px; margin-top: 6px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 15px; background-color: #fafafa; }
+        input:focus, select:focus { outline: none; border-color: #555; background-color: #fff; }
+        .row { display: flex; gap: 10px; align-items: flex-end; } .col { flex: 1; }
+        .divisor { height: 2px; background-color: #eee; margin: 25px 0; }
+        
+        /* GIRA */
+        .categorias-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-top: 5px; scrollbar-width: none; }
+        .categorias-container::-webkit-scrollbar { display: none; }
+        .btn-categoria { background-color: #eee; border: none; padding: 10px 18px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #555; cursor: pointer; white-space: nowrap; }
+        .btn-categoria.ativo { background-color: var(--cor-primaria); color: white; }
+        .produtos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; max-height: 250px; overflow-y: auto; }
+        .card-produto { border: 2px solid #eee; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; background: #fff; display: flex; flex-direction: column; justify-content: center; min-height: 70px; }
+        .card-produto p { margin: 0; font-size: 14px; font-weight: bold; }
+        .card-produto.selecionado { border-color: var(--cor-primaria); background-color: var(--cor-selecionado); transform: scale(0.98); }
+        .btn-gira { background-color: var(--cor-primaria); color: white; border: none; padding: 18px; font-size: 16px; font-weight: bold; border-radius: 12px; width: 100%; margin-top: 25px; cursor: pointer; text-transform: uppercase; }
+        .btn-gira:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* ADMIN, MASTER E PAINEL */
+        .btn-admin { background-color: var(--cor-admin); color: white; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+        .btn-master { background-color: var(--cor-master); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 20px;}
+        .btn-painel { background-color: var(--cor-painel); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 15px;}
+        .btn-acao-tabela { color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; width: 100%; }
+        .lista-gerenciamento { margin-top: 10px; max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; padding: 5px; background: #fff;}
+        .item-lista { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px;}
+        .badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; color: white; font-weight: bold; margin-right: 5px;}
+        .caixa-permissoes { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #eee;}
+        .permissao-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px;}
+        .permissao-item input { width: 18px; height: 18px; }
+        .box-lote { background: #fdfefe; border: 2px dashed var(--cor-admin); padding: 15px; border-radius: 12px; margin-top: 15px; }
+        .conflito-item { background: #fff8e1; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
+
+        /* DESIGN DAS SUB-ABAS DO ESTOQUE */
+        .sub-abas { display: flex; gap: 5px; margin-bottom: 20px; background: #f1f1f1; padding: 6px; border-radius: 12px; }
+        .sub-aba-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: bold; color: #888; cursor: pointer; border-radius: 8px; transition: 0.3s; font-size: 13px; text-transform: uppercase;}
+        .sub-aba-btn.ativa { background: var(--cor-card); color: var(--cor-admin); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+        .secao-interna { display: none; } .secao-interna.ativa { display: block; }
+
+        /* NAV BAR INFERIOR */
+        .nav-inferior { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: #888; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; flex: 1; height: 100%; justify-content: center;}
+        .nav-item.ativo { color: var(--cor-primaria); }
+        .nav-item.admin-ui.ativo { color: var(--cor-admin); }
+        .nav-item.master-ui.ativo { color: var(--cor-master); }
+        .nav-item.painel-ui.ativo { color: var(--cor-painel); }
+        .nav-icon { font-size: 20px; margin-bottom: 4px; }
+        
+        #mensagem { text-align: center; font-weight: bold; font-size: 14px; padding: 12px; border-radius: 10px; display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
+        .btn-logout { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; color: #666; margin-top: 5px;}
+
+        @media print {
+            body { background: white; padding: 0; }
+            .nav-inferior, .btn-logout, .btn-painel, #containerLogin, #mensagem { display: none !important; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .secao-app { display: none !important; }
+            #abaPainel { display: block !important; } 
+            .lista-gerenciamento { max-height: none !important; overflow: visible !important; border: none; }
+            .item-lista { border-bottom: 1px solid #000 !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="mensagem"></div>
+
+    <div class="header">
+        <img src="logo-terreiro.png" alt="Logo" class="logo">
+        <h1 class="titulo-terreiro">Casa do Pai Chico</h1>
+        <p class="subtitulo-sistema" id="nomeAbaAtual">Sistema Guardião</p>
+    </div>
+
+    <div class="container" id="containerLogin">
+        <label style="margin-top:0; text-align:center;">Identifique-se para começar:</label>
+        <input type="text" id="userId" placeholder="Digite seu CPF (apenas números)..." inputmode="numeric" onchange="fazerLogin()">
+    </div>
+
+    <div class="container" id="areaPrincipalApp" style="display: none; margin-top: 10px;">
+        
+        <div id="abaRetirada" class="secao-app ativa">
+            <p style="margin: 0 0 15px 0; color:#777; font-size:14px; text-align:center;">Toque no item e informe a quantidade.</p>
+            <label>1. Filtre por Categoria:</label>
+            <div class="categorias-container" id="listaCategoriasGira"></div>
+            <label>2. Toque no Produto:</label>
+            <div class="produtos-grid" id="listaProdutosGira"></div>
+            <label>3. Quantidade a Retirar:</label>
+            <input type="number" id="quantidadeGira" value="1" min="1">
+            <button class="btn-gira" id="btnConfirmarGira" onclick="darBaixaGira()" disabled>SELECIONE UM PRODUTO</button>
+        </div>
+
+        <div id="abaEstoque" class="secao-app">
+            
+            <div class="sub-abas">
+                <button class="sub-aba-btn ativa" onclick="mudarSubAbaEstoque('cadastro', this)">➕ Cadastros</button>
+                <button class="sub-aba-btn" onclick="mudarSubAbaEstoque('gerenciar', this)">⚙️ Gerenciar</button>
+            </div>
+
+            <div id="subEstoqueCadastro" class="secao-interna ativa">
+                <h3 style="color: var(--cor-admin); margin-top:0;">📦 Cadastrar Produto Individual</h3>
+                <label>Categoria:</label><select id="selectCategoriaAdmin"><option value="">Carregando...</option></select>
+                <label>Nome do Produto:</label><input type="text" id="nomeProdutoAdmin" placeholder="Ex: Vela Vermelha 7 dias">
+                <div class="row">
+                    <div class="col"><label>Qtd Inicial:</label><input type="number" id="qtdInicialAdmin" value="0" min="0"></div>
+                    <div class="col"><label>Estoque Mín.:</label><input type="number" id="estoqueMinAdmin" value="5" min="1"></div>
+                </div>
+                <button class="btn-admin" style="width:100%; margin-top:20px;" onclick="cadastrarProdutoAdmin()">Salvar Novo Produto</button>
+                
+                <div class="divisor"></div>
+                
+                <h3 style="color: var(--cor-admin); margin-top:0;">🚀 Importação Excel (.xlsx)</h3>
+                <p style="margin:0; font-size:12px; color:#666;">Carregue sua planilha comum ou baixe o modelo padrão.</p>
+                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                    <button class="btn-admin" style="background: #34495e; font-size: 13px; padding: 10px 14px; flex: 1; min-width: 160px;" onclick="baixarModeloExcel()">⬇️ Baixar Modelo</button>
+                    <input type="file" id="ficheiroPlanilha" accept=".xlsx, .xls, .csv" onchange="analisarPlanilhaLote()" style="margin-top:0; padding: 8px; flex: 1.5; min-width: 200px;">
+                </div>
+                <div id="painelLotePreview" class="box-lote" style="display:none;">
+                    <h4 style="margin:0 0 10px 0; color: var(--cor-admin);" id="resumoLoteTexto">Análise da Planilha</h4>
+                    <div id="listaConflitosLote" style="max-height:150px; overflow-y:auto; margin-bottom:15px;"></div>
+                    <button class="btn-admin" style="width:100%; background: var(--cor-sucesso);" onclick="processarImportacaoLoteFinal()">Confirmar Importação</button>
+                </div>
+            </div>
+
+            <div id="subEstoqueGerenciar" class="secao-interna">
+                <h3 style="color: var(--cor-admin); margin-top:0;">📋 Gerenciar Categorias</h3>
+                <div class="row">
+                    <div class="col"><input type="text" id="novaCategoriaAdmin" placeholder="Criar Nova Categoria..."></div>
+                    <button class="btn-admin" onclick="cadastrarCategoriaAdmin()">Criar</button>
+                </div>
+                <div class="lista-gerenciamento" id="listaCategoriasAdmin"></div>
+                
+                <div class="divisor"></div>
+                
+                <h3 style="color: var(--cor-admin); margin-top:0;">📦 Lista de Produtos</h3>
+                <div class="lista-gerenciamento" id="listaProdutosAdmin" style="max-height: 250px;"></div>
+            </div>
+
+        </div>
+
+        <div id="abaEquipe" class="secao-app">
+            <h3 style="color: var(--cor-master); margin-top:0;" id="tituloFormEquipe">👤 Novo Integrante</h3>
+            <label>CPF:</label><input type="text" id="equipeCpf" inputmode="numeric">
+            <label>Nome:</label><input type="text" id="equipeNome">
+            <label>E-mail:</label><input type="email" id="equipeEmail">
+            <label>Acessos:</label>
+            <div class="caixa-permissoes">
+                <div class="permissao-item"><input type="checkbox" id="checkAtivo" checked> Conta Ativa</div>
+                <div class="permissao-item"><input type="checkbox" id="checkRetirada" checked> Operacional</div>
+                <div class="permissao-item"><input type="checkbox" id="checkAdmin"> Almoxarife</div>
+                <div class="permissao-item"><input type="checkbox" id="checkMaster"> Diretoria</div>
+            </div>
+            <button class="btn-master" id="btnSalvarEquipe" onclick="salvarUsuarioEquipe()">Cadastrar</button>
+            <button class="btn-master" id="btnCancelarEdicaoEquipe" style="background:transparent; color:#555; border:2px solid #ccc; margin-top:10px; display:none;" onclick="cancelarEdicaoEquipe()">Cancelar Edição</button>
+            <div class="divisor"></div>
+            <h3 style="color: var(--cor-master); margin-top:0;">👥 Equipe</h3>
+            <div class="lista-gerenciamento" id="listaUsuariosEquipe" style="max-height:250px;"></div>
+        </div>
+
+        <div id="abaPainel" class="secao-app">
+            <h3 style="color: var(--cor-painel); margin-top:0;">🚨 Prioridade de Abastecimento</h3>
+            <p style="margin:0; font-size:12px; color:#666;">Itens que atingiram o estoque mínimo de segurança.</p>
+            <div class="lista-gerenciamento" id="listaAlertasPainel" style="max-height: 200px; border-color: var(--cor-perigo);"></div>
+            <div class="divisor"></div>
+            <h3 style="color: var(--cor-painel); margin-top:0;">📈 Média de Consumo (30 dias)</h3>
+            <p style="margin:0; font-size:12px; color:#666;">Ranking do que mais foi retirado no último mês.</p>
+            <div class="lista-gerenciamento" id="listaConsumoPainel" style="max-height: 250px;"></div>
+            <button class="btn-painel" onclick="window.print()">🖨️ Gerar PDF / Imprimir Relatório</button>
+        </div>
+
+        <center><button class="btn-logout" onclick="logout()">Trocar de CPF (Sair)</button></center>
+    </div>
+
+    <div class="nav-inferior" id="barraNavegacao" style="display: none;">
+        <button class="nav-item ativo" onclick="mudarAba('retirada', this)">
+            <div class="nav-icon">📦</div><span>Retirada</span>
+        </button>
+        <button class="nav-item admin-ui" id="abaBotaoEstoque" style="display: none;" onclick="mudarAba('estoque', this)">
+            <div class="nav-icon">📋</div><span>Estoque</span>
+        </button>
+        <button class="nav-item painel-ui" id="abaBotaoPainel" style="display: none;" onclick="mudarAba('painel', this)">
+            <div class="nav-icon">📊</div><span>Relatórios</span>
+        </button>
+        <button class="nav-item master-ui" id="abaBotaoEquipe" style="display: none;" onclick="mudarAba('equipe', this)">
+            <div class="nav-icon">👥</div><span>Equipe</span>
+        </button>
+    </div>
+
+    <script>
+        const urlBase = 'http://localhost:3000';
+        let todosItensGira = []; let usuariosDiretoria = [];
+        let itemSelecionadoGiraId = null; let modoEdicaoEquipe = false;
+        let itensParaImportarLote = [];
+
+        window.onload = () => {
+            const idSalvo = localStorage.getItem('usuario_terreiro');
+            if (idSalvo) { document.getElementById('userId').value = idSalvo; fazerLogin(); }
+        };
+
+        async function fazerLogin() {
+            const cpf = document.getElementById('userId').value; if(!cpf) return;
+            localStorage.setItem('usuario_terreiro', cpf);
+            try {
+                const resposta = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
+                if (resposta.ok) {
+                    document.getElementById('containerLogin').style.display = 'none';
+                    document.getElementById('areaPrincipalApp').style.display = 'block';
+                    document.getElementById('barraNavegacao').style.display = 'flex';
+                    todosItensGira = await resposta.json();
+                    await avaliarPermissoesAbas(cpf);
+                    montarCategoriasGira(); renderizarProdutosGira('Todos');
+                } else { mostrarAviso("CPF sem acesso ou suspenso.", "red"); logout(); }
+            } catch (e) { mostrarAviso("Erro ao conectar ao servidor.", "red"); }
+        }
+
+        async function avaliarPermissoesAbas(cpf) {
+            const resAdmin = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } });
+            if (resAdmin.ok) { document.getElementById('abaBotaoEstoque').style.display = 'flex'; document.getElementById('abaBotaoPainel').style.display = 'flex'; carregarCategoriasAdmin(); carregarProdutosAdmin(); } 
+            else { document.getElementById('abaBotaoEstoque').style.display = 'none'; document.getElementById('abaBotaoPainel').style.display = 'none'; }
+
+            const resMaster = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': cpf } });
+            if (resMaster.ok) { document.getElementById('abaBotaoEquipe').style.display = 'flex'; usuariosDiretoria = await resMaster.json(); renderizarListaEquipe(); } 
+            else { document.getElementById('abaBotaoEquipe').style.display = 'none'; }
+        }
+
+        function logout() {
+            localStorage.removeItem('usuario_terreiro'); document.getElementById('userId').value = '';
+            document.getElementById('containerLogin').style.display = 'block'; document.getElementById('areaPrincipalApp').style.display = 'none'; document.getElementById('barraNavegacao').style.display = 'none';
+            mudarAba('retirada', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function mudarAba(nomeAba, botaoClicado) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('ativo')); botaoClicado.classList.add('ativo');
+            document.querySelectorAll('.secao-app').forEach(s => s.classList.remove('ativa'));
+            if (nomeAba === 'retirada') { document.getElementById('abaRetirada').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Sistema Guardião"; }
+            if (nomeAba === 'estoque') { document.getElementById('abaEstoque').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Almoxarifado"; }
+            if (nomeAba === 'equipe') { document.getElementById('abaEquipe').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Diretoria"; }
+            if (nomeAba === 'painel') { document.getElementById('abaPainel').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Relatórios do Terreiro"; carregarDadosPainel(); }
+        }
+
+        function mudarSubAbaEstoque(nomeSubAba, botaoClicado) {
+            document.querySelectorAll('.sub-aba-btn').forEach(b => b.classList.remove('ativo')); botaoClicado.classList.add('ativo');
+            document.querySelectorAll('.secao-interna').forEach(s => s.classList.remove('ativa'));
+            if(nomeSubAba === 'cadastro') document.getElementById('subEstoqueCadastro').classList.add('ativa');
+            if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
+        }
+
+        // ==========================================
+        // LÓGICA DA ABA 4: PAINEL DE RELATÓRIOS
+        // ==========================================
+        async function carregarDadosPainel() {
+            const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/dashboard`, { headers: { 'x-usuario-id': cpf } });
+            if (res.ok) {
+                const dados = await res.json(); const divAlertas = document.getElementById('listaAlertasPainel'); const divConsumo = document.getElementById('listaConsumoPainel');
+                divAlertas.innerHTML = ''; divConsumo.innerHTML = '';
+                if (dados.alertas.length === 0) { divAlertas.innerHTML = '<div style="padding:15px; text-align:center; color:var(--cor-sucesso);">✅ Todo o estoque está seguro!</div>'; } else { dados.alertas.forEach(item => { divAlertas.innerHTML += `<div class="item-lista" style="background:#fff3e0;"><div><b>${item.nome}</b><br><small style="color:var(--cor-perigo);">Estoque: ${item.atual} (Mínimo recomendado: ${item.min})</small></div><span style="font-size:20px;">⚠️</span></div>`; }); }
+                if (dados.rankingConsumo.length === 0) { divConsumo.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">Nenhuma retirada registrada nos últimos 30 dias.</div>'; } else { dados.rankingConsumo.forEach((item, index) => { let medalha = ''; if (index === 0) medalha = '🥇 '; if (index === 1) medalha = '🥈 '; if (index === 2) medalha = '🥉 '; divConsumo.innerHTML += `<div class="item-lista"><div><b>${medalha}${item.nome}</b></div><div style="font-weight:bold; color:var(--cor-painel);">${item.totalGasto} unidades</div></div>`; }); }
+            } else { mostrarAviso("Erro ao gerar relatórios.", "red"); }
+        }
+
+        // ==========================================
+        // GESTÃO DE CATEGORIAS (CRIAR, EDITAR, DELETAR)
+        // ==========================================
+        async function carregarCategoriasAdmin() {
+            const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } });
+            if (res.ok) {
+                const categorias = await res.json(); const divLista = document.getElementById('listaCategoriasAdmin'); const select = document.getElementById('selectCategoriaAdmin');
+                divLista.innerHTML = ''; select.innerHTML = '<option value="">Selecione...</option>';
+                categorias.forEach(cat => {
+                    // Novo botão de Editar adicionado
+                    divLista.innerHTML += `
+                        <div class="item-lista">
+                            <span>${cat.nome}</span>
+                            <div style="display:flex; gap:5px;">
+                                <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarCategoriaAdmin('${cat.id}', '${cat.nome}')">Editar</button>
+                                <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarCategoriaAdmin('${cat.id}')">Excluir</button>
+                            </div>
+                        </div>`;
+                    select.innerHTML += `<option value="${cat.nome}">${cat.nome}</option>`;
+                });
+            }
+        }
+
+        async function cadastrarCategoriaAdmin() {
+            const cpf = document.getElementById('userId').value; const nome = document.getElementById('novaCategoriaAdmin').value; if(!nome) return;
+            const res = await fetch(`${urlBase}/categorias`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome }) });
+            if(res.ok) { document.getElementById('novaCategoriaAdmin').value = ''; mostrarAviso("Categoria criada!", "green"); carregarCategoriasAdmin(); } else { mostrarAviso((await res.json()).erro, "red"); }
+        }
+
+        async function editarCategoriaAdmin(id, nomeAntigo) {
+            const novoNome = prompt("Digite o novo nome para a categoria:", nomeAntigo);
+            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; // Se cancelar ou deixar igual, não faz nada
+
+            const cpf = document.getElementById('userId').value;
+            mostrarAviso("Renomeando e atualizando produtos...", "blue");
+
+            const res = await fetch(`${urlBase}/categorias/${id}`, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, 
+                body: JSON.stringify({ nome: novoNome, nomeAntigo: nomeAntigo }) 
+            });
+
+            if(res.ok) { 
+                mostrarAviso("Categoria atualizada com sucesso!", "green"); 
+                carregarCategoriasAdmin(); 
+                carregarProdutosAdmin(); // Recarrega os produtos para mostrar o nome novo
+                const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira();
+            } else { 
+                mostrarAviso((await res.json()).erro, "red"); 
+            }
+        }
+
+        async function deletarCategoriaAdmin(id) { if(!confirm("Deseja excluir? Produtos não serão afetados, mas ficarão sem categoria oficial.")) return; const cpf = document.getElementById('userId').value; await fetch(`${urlBase}/categorias/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); carregarCategoriasAdmin(); }
+
+        // ==========================================
+        // OUTRAS LÓGICAS (MANTIDAS INTACTAS)
+        // ==========================================
+        function baixarModeloExcel() { const dadosModelo = [["Nome", "Categoria", "Quantidade", "EstoqueMinimo"], ["Vela Branca de 7 Dias", "Velas", 50, 10], ["Alfazema Líquida", "Bebidas", 12, 4], ["Fumo de Rolo", "Fumos", 15, 5]]; const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dadosModelo); ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}]; XLSX.utils.book_append_sheet(wb, ws, "Modelo Guardião"); XLSX.writeFile(wb, "modelo_cadastro_estoque.xlsx"); mostrarAviso("Modelo baixado!", "green"); }
+        function analisarPlanilhaLote() { const input = document.getElementById('ficheiroPlanilha'); if (!input.files.length) return; const file = input.files[0]; const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const primeiraAba = workbook.Sheets[workbook.SheetNames[0]]; const linhas = XLSX.utils.sheet_to_json(primeiraAba, {header: 1}); itensParaImportarLote = []; const divLista = document.getElementById('listaConflitosLote'); divLista.innerHTML = ''; let totalNovos = 0; let totalDuplicados = 0; for (let i = 0; i < linhas.length; i++) { const colunas = linhas[i]; if (!colunas || colunas.length < 3) continue; if (i === 0 && String(colunas[0]).toLowerCase().includes('nome')) continue; const nome = String(colunas[0]).trim(); const categoria = String(colunas[1]).trim(); const quantidade = Number(colunas[2]); const estoqueMin = colunas[3] ? Number(colunas[3]) : 5; if (!nome || !categoria || isNaN(quantidade)) continue; const correspondencia = todosItensGira.find(item => item.nome.toLowerCase() === nome.toLowerCase() && item.categoria.toLowerCase() === categoria.toLowerCase()); const itemObj = { nome, categoria, quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null }; if (correspondencia) { totalDuplicados++; itemObj.existe = true; itemObj.idExistente = correspondencia.id; divLista.innerHTML += `<div class="conflito-item"><div><b>${nome}</b> (${categoria}) <br> <small>Planilha: +${quantidade} | Atual: ${correspondencia.quantidadeAtual}</small></div><label style="margin:0; display:inline-flex; gap:5px;"><input type="checkbox" id="checkLote-${itensParaImportarLote.length}" checked> Somar</label></div>`; } else { totalNovos++; } itensParaImportarLote.push(itemObj); } document.getElementById('resumoLoteTexto').innerText = `Planilha lida: ${totalNovos} novos e ${totalDuplicados} duplicados.`; document.getElementById('painelLotePreview').style.display = 'block'; }; reader.readAsArrayBuffer(file); }
+        async function processarImportacaoLoteFinal() { const cpf = document.getElementById('userId').value; mostrarAviso("Importando dados...", "blue"); for (let i = 0; i < itensParaImportarLote.length; i++) { const item = itensParaImportarLote[i]; if (item.existe) { const checkbox = document.getElementById(`checkLote-${i}`); if (checkbox && checkbox.checked) { await fetch(`${urlBase}/itens/${item.idExistente}/abastecer`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ quantidadeAdicionada: item.quantidade }) }); } } else { await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: item.nome, categoria: item.categoria, quantidadeAtual: item.quantidade, estoqueMinimo: item.estoqueMinimo }) }); } } mostrarAviso("Importação concluída!", "green"); document.getElementById('painelLotePreview').style.display = 'none'; document.getElementById('ficheiroPlanilha').value = ''; const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); carregarProdutosAdmin(); }
+        function montarCategoriasGira() { const container = document.getElementById('listaCategoriasGira'); const categorias = ['Todos', ...new Set(todosItensGira.map(item => item.categoria))]; container.innerHTML = ''; categorias.forEach(cat => { const btn = document.createElement('button'); btn.className = `btn-categoria ${cat === 'Todos' ? 'ativo' : ''}`; btn.innerText = cat; btn.onclick = () => { container.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('ativo')); btn.classList.add('ativo'); renderizarProdutosGira(cat); }; container.appendChild(btn); }); }
+        function renderizarProdutosGira(categoriaFiltro) { const container = document.getElementById('listaProdutosGira'); container.innerHTML = ''; itemSelecionadoGiraId = null; atualizarBotaoGira(); const filtrados = categoriaFiltro === 'Todos' ? todosItensGira : todosItensGira.filter(i => i.categoria === categoriaFiltro); if(filtrados.length === 0) { container.innerHTML = '<p style="grid-column:span 2; text-align:center; color:#888;">Nenhum produto.</p>'; return; } filtrados.forEach(item => { const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`; card.innerHTML = `<p>${item.nome}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`; card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.classList.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; container.appendChild(card); }); }
+        function atualizarBotaoGira() { const btn = document.getElementById('btnConfirmarGira'); if (itemSelecionadoGiraId) { btn.disabled = false; btn.innerText = "CONFIRMAR RETIRADA"; } else { btn.disabled = true; btn.innerText = "SELECIONE UM PRODUTO"; } }
+        async function darBaixaGira() { const cpf = document.getElementById('userId').value; const MathQuantidade = document.getElementById('quantidadeGira').value; if(!itemSelecionadoGiraId || MathQuantidade < 1) return; const res = await fetch(`${urlBase}/itens/${itemSelecionadoGiraId}/baixa`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ quantidadeRetirada: Number(MathQuantidade) }) }); const dados = await res.json(); if (res.ok) { mostrarAviso(dados.alerta ? `⚠️ ESTOQUE CRÍTICO: restam ${dados.restante}.` : `Sucesso! Restam ${dados.restante} unidades.`, dados.alerta ? "red" : "green"); const resposta = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await resposta.json(); renderizarProdutosGira(document.querySelector('.btn-categoria.ativo').innerText); if(document.getElementById('abaBotaoEstoque').style.display === 'flex') carregarProdutosAdmin(); } else { mostrarAviso(dados.erro, "red"); } }
+        async function carregarProdutosAdmin() {
+    const cpf = document.getElementById('userId').value; 
+    const res = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
+    if (res.ok) {
+        const produtos = await res.json(); 
+        const divLista = document.getElementById('listaProdutosAdmin'); 
+        divLista.innerHTML = ''; 
+        produtos.forEach(prod => {
+            divLista.innerHTML += `
+                <div class="item-lista">
+                    <div><b>${prod.nome}</b><br><small style="color:#777;">${prod.categoria} | Qtd: ${prod.quantidadeAtual}</small></div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarProdutoAdmin('${prod.id}', '${prod.nome}')">Editar</button>
+                        <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarProdutoAdmin('${prod.id}')">Excluir</button>
+                    </div>
+                </div>`;
+        });
+    }
+}
+
+async function editarProdutoAdmin(id, nomeAntigo) {
+    const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo);
+    if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
+
+    const cpf = document.getElementById('userId').value;
+    const res = await fetch(`${urlBase}/itens/${id}/editar`, { 
+        method: 'PUT', 
+        headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, 
+        body: JSON.stringify({ novoNome }) 
+    });
+
+    if (res.ok) {
+        mostrarAviso("Nome do produto atualizado!", "green");
+        carregarProdutosAdmin();
+        // Atualiza a lista da Gira também
+        const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
+        todosItensGira = await r.json(); 
+        montarCategoriasGira(); 
+        renderizarProdutosGira('Todos');
+    } else {
+        mostrarAviso((await res.json()).erro, "red");
+    }
+}
+        async function cadastrarProdutoAdmin() { const cpf = document.getElementById('userId').value; const payload = { categoria: document.getElementById('selectCategoriaAdmin').value, nome: document.getElementById('nomeProdutoAdmin').value, quantidadeAtual: document.getElementById('qtdInicialAdmin').value, estoqueMinimo: document.getElementById('estoqueMinAdmin').value }; if(!payload.categoria || !payload.nome) return mostrarAviso("Preencha!", "red"); const res = await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify(payload) }); if (res.ok) { document.getElementById('nomeProdutoAdmin').value = ''; mostrarAviso("Produto cadastrado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        async function deletarProdutoAdmin(id) { if(!confirm("Excluir?")) return; const cpf = document.getElementById('userId').value; await fetch(`${urlBase}/itens/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); }
+        function renderizarListaEquipe() { const divLista = document.getElementById('listaUsuariosEquipe'); divLista.innerHTML = ''; usuariosDiretoria.forEach(user => { let badges = user.masterAdmin ? `<span class="badge" style="background:var(--cor-master)">MASTER</span>` : ''; if(user.podeCadastrarItens) badges += `<span class="badge" style="background:var(--cor-admin)">ALMOXARIFE</span>`; if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`; divLista.innerHTML += `<div class="item-lista"><div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div><div style="display:flex; flex-direction:column; gap:4px; min-width:80px;"><button class="btn-acao-tabela" style="background:var(--cor-admin);" onclick="prepararEdicaoEquipe('${user.id}')">Editar</button><button class="btn-acao-tabela" style="background:#555;" onclick="alterarStatusEquipe('${user.id}', ${!user.ativo})">${user.ativo ? 'Bloquear' : 'Liberar'}</button><button class="btn-acao-tabela" style="background:var(--cor-perigo);" onclick="deletarUsuarioEquipe('${user.id}')">Excluir</button></div></div>`; }); }
+        function prepararEdicaoEquipe(cpf) { const u = usuariosDiretoria.find(user => user.id === cpf); if(!u) return; modoEdicaoEquipe = true; document.getElementById('tituloFormEquipe').innerText = "✏️ Editar Integrante"; const c = document.getElementById('equipeCpf'); c.value = u.id; c.disabled = true; document.getElementById('equipeNome').value = u.nome; document.getElementById('equipeEmail').value = u.email || ''; document.getElementById('checkAtivo').checked = u.ativo; document.getElementById('checkRetirada').checked = u.podeDarBaixa; document.getElementById('checkAdmin').checked = u.podeCadastrarItens; document.getElementById('checkMaster').checked = u.masterAdmin; document.getElementById('btnSalvarEquipe').innerText = "Salvar Alterações"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'block'; }
+        function cancelarEdicaoEquipe() { modoEdicaoEquipe = false; document.getElementById('tituloFormEquipe').innerText = "👤 Novo Integrante"; const c = document.getElementById('equipeCpf'); c.value = ''; c.disabled = false; document.getElementById('equipeNome').value = ''; document.getElementById('equipeEmail').value = ''; document.getElementById('checkAtivo').checked = true; document.getElementById('checkRetirada').checked = true; document.getElementById('checkAdmin').checked = false; document.getElementById('checkMaster').checked = false; document.getElementById('btnSalvarEquipe').innerText = "Cadastrar Integrante"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'none'; }
+        async function salvarUsuarioEquipe() { const masterId = document.getElementById('userId').value; const cpf = document.getElementById('equipeCpf').value; const payload = { cpf: cpf, nome: document.getElementById('equipeNome').value, email: document.getElementById('equipeEmail').value, ativo: document.getElementById('checkAtivo').checked, podeDarBaixa: document.getElementById('checkRetirada').checked, podeCadastrarItens: document.getElementById('checkAdmin').checked, masterAdmin: document.getElementById('checkMaster').checked }; if(!payload.cpf || !payload.nome) return; const url = modoEdicaoEquipe ? `${urlBase}/usuarios/${cpf}` : `${urlBase}/usuarios`; const res = await fetch(url, { method: modoEdicaoEquipe ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify(payload) }); if (res.ok) { mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green"); cancelarEdicaoEquipe(); const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        async function alterarStatusEquipe(cpf, status) { const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify({ ativo: status }) }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        async function deletarUsuarioEquipe(cpf) { if(!confirm("Excluir?")) return; const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}`, { method: 'DELETE', headers: { 'x-usuario-id': masterId } }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        function mostrarAviso(texto, cor) { const div = document.getElementById('mensagem'); div.innerHTML = texto; div.style.display = 'block'; if(cor === "red") { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; } else if(cor === "green") { div.style.backgroundColor = "#e8f5e9"; div.style.color = "#2e7d32"; } else { div.style.backgroundColor = "#e3f2fd"; div.style.color = "#1565c0"; } setTimeout(() => div.style.display = 'none', 3500); }
+    </script>
+</body>
+</html>
