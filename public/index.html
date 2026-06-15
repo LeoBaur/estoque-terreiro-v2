@@ -104,7 +104,7 @@
             <label>2. Toque no Produto:</label>
             <div class="produtos-grid" id="listaProdutosGira"></div>
             <label>3. Quantidade a Retirar:</label>
-            <input type="number" id="quantidadeGira" value="1" min="1">
+            <input type="number" id="quantidadeGira" value="1" min="1" inputmode="numeric">
             <button class="btn-gira" id="btnConfirmarGira" onclick="darBaixaGira()" disabled>SELECIONE UM PRODUTO</button>
         </div>
 
@@ -285,7 +285,6 @@
                 const categorias = await res.json(); const divLista = document.getElementById('listaCategoriasAdmin'); const select = document.getElementById('selectCategoriaAdmin');
                 divLista.innerHTML = ''; select.innerHTML = '<option value="">Selecione...</option>';
                 categorias.forEach(cat => {
-                    // Novo botão de Editar adicionado
                     divLista.innerHTML += `
                         <div class="item-lista">
                             <span>${cat.nome}</span>
@@ -307,7 +306,7 @@
 
         async function editarCategoriaAdmin(id, nomeAntigo) {
             const novoNome = prompt("Digite o novo nome para a categoria:", nomeAntigo);
-            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; // Se cancelar ou deixar igual, não faz nada
+            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
 
             const cpf = document.getElementById('userId').value;
             mostrarAviso("Renomeando e atualizando produtos...", "blue");
@@ -319,9 +318,9 @@
             });
 
             if(res.ok) { 
-                mostrarAviso("Categoria atualizada com sucesso!", "green"); 
+                mostrarAviso("Categoria actualizada com sucesso!", "green"); 
                 carregarCategoriasAdmin(); 
-                carregarProdutosAdmin(); // Recarrega os produtos para mostrar o nome novo
+                carregarProdutosAdmin();
                 const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira();
             } else { 
                 mostrarAviso((await res.json()).erro, "red"); 
@@ -337,52 +336,14 @@
         function analisarPlanilhaLote() { const input = document.getElementById('ficheiroPlanilha'); if (!input.files.length) return; const file = input.files[0]; const reader = new FileReader(); reader.onload = function(e) { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const primeiraAba = workbook.Sheets[workbook.SheetNames[0]]; const linhas = XLSX.utils.sheet_to_json(primeiraAba, {header: 1}); itensParaImportarLote = []; const divLista = document.getElementById('listaConflitosLote'); divLista.innerHTML = ''; let totalNovos = 0; let totalDuplicados = 0; for (let i = 0; i < linhas.length; i++) { const colunas = linhas[i]; if (!colunas || colunas.length < 3) continue; if (i === 0 && String(colunas[0]).toLowerCase().includes('nome')) continue; const nome = String(colunas[0]).trim(); const categoria = String(colunas[1]).trim(); const quantidade = Number(colunas[2]); const estoqueMin = colunas[3] ? Number(colunas[3]) : 5; if (!nome || !categoria || isNaN(quantidade)) continue; const correspondencia = todosItensGira.find(item => item.nome.toLowerCase() === nome.toLowerCase() && item.categoria.toLowerCase() === categoria.toLowerCase()); const itemObj = { nome, categoria, quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null }; if (correspondencia) { totalDuplicados++; itemObj.existe = true; itemObj.idExistente = correspondencia.id; divLista.innerHTML += `<div class="conflito-item"><div><b>${nome}</b> (${categoria}) <br> <small>Planilha: +${quantidade} | Atual: ${correspondencia.quantidadeAtual}</small></div><label style="margin:0; display:inline-flex; gap:5px;"><input type="checkbox" id="checkLote-${itensParaImportarLote.length}" checked> Somar</label></div>`; } else { totalNovos++; } itensParaImportarLote.push(itemObj); } document.getElementById('resumoLoteTexto').innerText = `Planilha lida: ${totalNovos} novos e ${totalDuplicados} duplicados.`; document.getElementById('painelLotePreview').style.display = 'block'; }; reader.readAsArrayBuffer(file); }
         async function processarImportacaoLoteFinal() { const cpf = document.getElementById('userId').value; mostrarAviso("Importando dados...", "blue"); for (let i = 0; i < itensParaImportarLote.length; i++) { const item = itensParaImportarLote[i]; if (item.existe) { const checkbox = document.getElementById(`checkLote-${i}`); if (checkbox && checkbox.checked) { await fetch(`${urlBase}/itens/${item.idExistente}/abastecer`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ quantidadeAdicionada: item.quantidade }) }); } } else { await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: item.nome, categoria: item.categoria, quantidadeAtual: item.quantidade, estoqueMinimo: item.estoqueMinimo }) }); } } mostrarAviso("Importação concluída!", "green"); document.getElementById('painelLotePreview').style.display = 'none'; document.getElementById('ficheiroPlanilha').value = ''; const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); carregarProdutosAdmin(); }
         function montarCategoriasGira() { const container = document.getElementById('listaCategoriasGira'); const categorias = ['Todos', ...new Set(todosItensGira.map(item => item.categoria))]; container.innerHTML = ''; categorias.forEach(cat => { const btn = document.createElement('button'); btn.className = `btn-categoria ${cat === 'Todos' ? 'ativo' : ''}`; btn.innerText = cat; btn.onclick = () => { container.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('ativo')); btn.classList.add('ativo'); renderizarProdutosGira(cat); }; container.appendChild(btn); }); }
-        function renderizarProdutosGira(categoriaFiltro) { const container = document.getElementById('listaProdutosGira'); container.innerHTML = ''; itemSelecionadoGiraId = null; atualizarBotaoGira(); const filtrados = categoriaFiltro === 'Todos' ? todosItensGira : todosItensGira.filter(i => i.categoria === categoriaFiltro); if(filtrados.length === 0) { container.innerHTML = '<p style="grid-column:span 2; text-align:center; color:#888;">Nenhum produto.</p>'; return; } filtrados.forEach(item => { const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`; card.innerHTML = `<p>${item.nome}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`; card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.classList.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; container.appendChild(card); }); }
+        
+        // 👇 FUNÇÃO ATUALIZADA: Agora mostra a categoria discretamente nos cards se o filtro ativo for "Todos"
+        function renderizarProdutosGira(categoriaFiltro) { const container = document.getElementById('listaProdutosGira'); container.innerHTML = ''; itemSelecionadoGiraId = null; atualizarBotaoGira(); const filtrados = categoriaFiltro === 'Todos' ? todosItensGira : todosItensGira.filter(i => i.categoria === categoriaFiltro); if(filtrados.length === 0) { container.innerHTML = '<p style="grid-column:span 2; text-align:center; color:#888;">Nenhum produto.</p>'; return; } filtrados.forEach(item => { const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`; const textoCategoria = categoriaFiltro === 'Todos' ? `<br><span style="font-size:11px; color: var(--cor-admin); font-weight: normal; opacity: 0.7;">(${item.categoria})</span>` : ''; card.innerHTML = `<p>${item.nome}${textoCategoria}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`; card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.classList.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; container.appendChild(card); }); }
+        
         function atualizarBotaoGira() { const btn = document.getElementById('btnConfirmarGira'); if (itemSelecionadoGiraId) { btn.disabled = false; btn.innerText = "CONFIRMAR RETIRADA"; } else { btn.disabled = true; btn.innerText = "SELECIONE UM PRODUTO"; } }
         async function darBaixaGira() { const cpf = document.getElementById('userId').value; const MathQuantidade = document.getElementById('quantidadeGira').value; if(!itemSelecionadoGiraId || MathQuantidade < 1) return; const res = await fetch(`${urlBase}/itens/${itemSelecionadoGiraId}/baixa`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ quantidadeRetirada: Number(MathQuantidade) }) }); const dados = await res.json(); if (res.ok) { mostrarAviso(dados.alerta ? `⚠️ ESTOQUE CRÍTICO: restam ${dados.restante}.` : `Sucesso! Restam ${dados.restante} unidades.`, dados.alerta ? "red" : "green"); const resposta = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await resposta.json(); renderizarProdutosGira(document.querySelector('.btn-categoria.ativo').innerText); if(document.getElementById('abaBotaoEstoque').style.display === 'flex') carregarProdutosAdmin(); } else { mostrarAviso(dados.erro, "red"); } }
-        async function carregarProdutosAdmin() {
-    const cpf = document.getElementById('userId').value; 
-    const res = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
-    if (res.ok) {
-        const produtos = await res.json(); 
-        const divLista = document.getElementById('listaProdutosAdmin'); 
-        divLista.innerHTML = ''; 
-        produtos.forEach(prod => {
-            divLista.innerHTML += `
-                <div class="item-lista">
-                    <div><b>${prod.nome}</b><br><small style="color:#777;">${prod.categoria} | Qtd: ${prod.quantidadeAtual}</small></div>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarProdutoAdmin('${prod.id}', '${prod.nome}')">Editar</button>
-                        <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarProdutoAdmin('${prod.id}')">Excluir</button>
-                    </div>
-                </div>`;
-        });
-    }
-}
-
-async function editarProdutoAdmin(id, nomeAntigo) {
-    const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo);
-    if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
-
-    const cpf = document.getElementById('userId').value;
-    const res = await fetch(`${urlBase}/itens/${id}/editar`, { 
-        method: 'PUT', 
-        headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, 
-        body: JSON.stringify({ novoNome }) 
-    });
-
-    if (res.ok) {
-        mostrarAviso("Nome do produto atualizado!", "green");
-        carregarProdutosAdmin();
-        // Atualiza a lista da Gira também
-        const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
-        todosItensGira = await r.json(); 
-        montarCategoriasGira(); 
-        renderizarProdutosGira('Todos');
-    } else {
-        mostrarAviso((await res.json()).erro, "red");
-    }
-}
+        async function carregarProdutosAdmin() { const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); if (res.ok) { const produtos = await res.json(); const divLista = document.getElementById('listaProdutosAdmin'); divLista.innerHTML = ''; produtos.forEach(prod => { divLista.innerHTML += ` <div class="item-lista"> <div><b>${prod.nome}</b><br><small style="color:#777;">${prod.categoria} | Qtd: ${prod.quantidadeAtual}</small></div> <div style="display:flex; gap:5px;"> <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarProdutoAdmin('${prod.id}', '${prod.nome}')">Editar</button> <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarProdutoAdmin('${prod.id}')">Excluir</button> </div> </div>`; }); } }
+        async function editarProdutoAdmin(id, nomeAntigo) { const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo); if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens/${id}/editar`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ novoNome }) }); if (res.ok) { mostrarAviso("Nome do produto atualizado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
         async function cadastrarProdutoAdmin() { const cpf = document.getElementById('userId').value; const payload = { categoria: document.getElementById('selectCategoriaAdmin').value, nome: document.getElementById('nomeProdutoAdmin').value, quantidadeAtual: document.getElementById('qtdInicialAdmin').value, estoqueMinimo: document.getElementById('estoqueMinAdmin').value }; if(!payload.categoria || !payload.nome) return mostrarAviso("Preencha!", "red"); const res = await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify(payload) }); if (res.ok) { document.getElementById('nomeProdutoAdmin').value = ''; mostrarAviso("Produto cadastrado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
         async function deletarProdutoAdmin(id) { if(!confirm("Excluir?")) return; const cpf = document.getElementById('userId').value; await fetch(`${urlBase}/itens/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); }
         function renderizarListaEquipe() { const divLista = document.getElementById('listaUsuariosEquipe'); divLista.innerHTML = ''; usuariosDiretoria.forEach(user => { let badges = user.masterAdmin ? `<span class="badge" style="background:var(--cor-master)">MASTER</span>` : ''; if(user.podeCadastrarItens) badges += `<span class="badge" style="background:var(--cor-admin)">ALMOXARIFE</span>`; if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`; divLista.innerHTML += `<div class="item-lista"><div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div><div style="display:flex; flex-direction:column; gap:4px; min-width:80px;"><button class="btn-acao-tabela" style="background:var(--cor-admin);" onclick="prepararEdicaoEquipe('${user.id}')">Editar</button><button class="btn-acao-tabela" style="background:#555;" onclick="alterarStatusEquipe('${user.id}', ${!user.ativo})">${user.ativo ? 'Bloquear' : 'Liberar'}</button><button class="btn-acao-tabela" style="background:var(--cor-perigo);" onclick="deletarUsuarioEquipe('${user.id}')">Excluir</button></div></div>`; }); }
