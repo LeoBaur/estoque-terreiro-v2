@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guardião - Casa do Pai Chico</title>
     
-    <!-- ÍCONE DA TELA DO CELULAR: Usa a logo do Guardião -->
     <link rel="icon" type="image/png" href="logo-guardiao.png">
     <link rel="icon" sizes="192x192" href="logo-guardiao.png">
     <link rel="apple-touch-icon" href="logo-guardiao.png">
@@ -107,7 +106,7 @@
 
     <div class="container" id="containerLogin">
         <label style="margin-top:0; text-align:center;">Identifique-se para começar:</label>
-        <input type="text" id="userId" placeholder="Digite seu CPF (apenas números)..." inputmode="numeric" onchange="fazerLogin()">
+        <input type="text" id="userId" placeholder="Digite seu CPF (apenas números)..." inputmode="numeric" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onchange="fazerLogin()">
     </div>
 
     <div class="container" id="areaPrincipalApp" style="display: none; margin-top: 10px;">
@@ -183,7 +182,9 @@
 
         <div id="abaEquipe" class="secao-app">
             <h3 style="color: var(--cor-master); margin-top:0;" id="tituloFormEquipe">👤 Novo Integrante</h3>
-            <label>CPF:</label><input type="text" id="equipeCpf" inputmode="numeric">
+            <label>CPF (apenas 11 números):</label>
+            <input type="text" id="equipeCpf" placeholder="Ex: 00011122233" inputmode="numeric" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            
             <label>Nome:</label><input type="text" id="equipeNome">
             <label>E-mail:</label><input type="email" id="equipeEmail">
             <label>Acessos:</label>
@@ -201,13 +202,11 @@
         </div>
 
         <div id="abaPainel" class="secao-app">
-            <!-- NOVAS SUB-ABAS DE RELATÓRIO -->
             <div class="sub-abas">
                 <button class="sub-aba-btn ativa ativa-painel" onclick="mudarSubAbaRelatorio('dashboard', this)">📊 Painel Geral</button>
                 <button class="sub-aba-btn" onclick="mudarSubAbaRelatorio('conferencia', this)">📋 Ficha de Conferência</button>
             </div>
 
-            <!-- SUB-ABA 1: VISÃO DASHBOARD ATUAL -->
             <div id="subRelatorioDashboard" class="secao-interna ativa">
                 <h3 style="color: var(--cor-painel); margin-top:0;">🚨 Prioridade de Abastecimento</h3>
                 <p style="margin:0; font-size:12px; color:#666;">Itens que atingiram o estoque mínimo de segurança.</p>
@@ -218,7 +217,6 @@
                 <div class="lista-gerenciamento" id="listaConsumoPainel" style="max-height: 250px;"></div>
             </div>
 
-            <!-- SUB-ABA 2: VISÃO PLANILHA DE CONFERÊNCIA -->
             <div id="subRelatorioConferencia" class="secao-interna">
                 <h3 style="color: var(--cor-painel); margin-top:0;">📝 Ficha para Conferência Física</h3>
                 <p style="margin:0; font-size:12px; color:#666;">Lista ordenada de todos os produtos cadastrados e saldos.</p>
@@ -232,8 +230,7 @@
                             </tr>
                         </thead>
                         <tbody id="corpoTabelaConferencia">
-                            <!-- Injetado dinamicamente -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -319,7 +316,6 @@
             if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
         }
 
-        // 👇 NOVA FUNÇÃO: Controla a troca de abas dentro da seção de relatórios
         function mudarSubAbaRelatorio(nomeSubAba, botaoClicado) {
             document.querySelectorAll('#abaPainel .sub-aba-btn').forEach(b => b.classList.remove('ativa', 'ativa-painel')); 
             botaoClicado.classList.add('ativa', 'ativa-painel');
@@ -368,11 +364,9 @@
                     }); 
                 }
 
-                // 👇 INJEÇÃO DA TABELA COMPLETA DE CONFERÊNCIA: Organizada de A-Z por categoria
                 const tabelaCorpo = document.getElementById('corpoTabelaConferencia');
                 tabelaCorpo.innerHTML = '';
                 
-                // Ordena os itens alfabeticamente por categoria, e depois por nome
                 const itensOrdenados = [...todosItensGira].sort((a, b) => {
                     const catA = (a.categoria || '').toLowerCase();
                     const catB = (b.categoria || '').toLowerCase();
@@ -506,7 +500,7 @@
                 montarCategoriasGira(); 
                 renderizarProdutosGira('Todos'); 
                 carregarProdutosAdmin();
-            } catch(e) { mostrarAviso("Erro ao processar a exclusão em lote.", "red"); }
+            } catch(e) { mostrarAviso("Erro ao processar a exclusão in lote.", "red"); }
         }
 
         function baixarModeloExcel() { const dadosModelo = [["Nome", "Categoria", "Quantidade", "EstoqueMinimo"], ["Vela Branca de 7 Dias", "Velas", 50, 10], ["Alfazema Líquida", "Bebidas", 12, 4], ["Fumo de Rolo", "Fumos", 15, 5]]; const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dadosModelo); ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}]; XLSX.utils.book_append_sheet(wb, ws, "Modelo Guardião"); XLSX.writeFile(wb, "modelo_cadastro_estoque.xlsx"); mostrarAviso("Modelo baixado!", "green"); }
@@ -661,8 +655,26 @@
 
         function renderizarListaEquipe() { const divLista = document.getElementById('listaUsuariosEquipe'); divLista.innerHTML = ''; usuariosDiretoria.forEach(user => { let badges = user.masterAdmin ? `<span class="badge" style="background:var(--cor-master)">MASTER</span>` : ''; if(user.podeCadastrarItens) badges += `<span class="badge" style="background:var(--cor-admin)">ALMOXARIFE</span>`; if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`; divLista.innerHTML += `<div class="item-lista"><div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div><div style="display:flex; flex-direction:column; gap:4px; min-width:80px;"><button class="btn-acao-tabela" style="background:var(--cor-admin);" onclick="prepararEdicaoEquipe('${user.id}')">Editar</button><button class="btn-acao-tabela" style="background:#555;" onclick="alterarStatusEquipe('${user.id}', ${!user.ativo})">${user.ativo ? 'Bloquear' : 'Liberar'}</button><button class="btn-acao-tabela" style="background:var(--cor-perigo);" onclick="deletarUsuarioEquipe('${user.id}')">Excluir</button></div></div>`; }); }
         function prepararEdicaoEquipe(cpf) { const u = usuariosDiretoria.find(user => user.id === cpf); if(!u) return; modoEdicaoEquipe = true; document.getElementById('tituloFormEquipe').innerText = "✏️ Editar Integrante"; const c = document.getElementById('equipeCpf'); c.value = u.id; c.disabled = true; document.getElementById('equipeNome').value = u.nome; document.getElementById('equipeEmail').value = u.email || ''; document.getElementById('checkAtivo').checked = u.ativo; document.getElementById('checkRetirada').checked = u.podeDarBaixa; document.getElementById('checkAdmin').checked = u.podeCadastrarItens; document.getElementById('checkMaster').checked = u.masterAdmin; document.getElementById('btnSalvarEquipe').innerText = "Salvar Alterações"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'block'; }
-        function cancelarEdicaoEquipe() { modoEdicaoEquipe = false; document.getElementById('tituloFormEquipe').innerText = "👤 Novo Integrante"; const c = document.getElementById('equipeCpf'); c.value = ''; c.disabled = false; document.getElementById('equipeNome').value = ''; document.getElementById('equipeEmail').value = ''; document.getElementById('checkAtivo').checked = true; document.getElementById('checkRetirada').checked = true; document.getElementById('checkAdmin').checked = false; document.getElementById('checkMaster').checked = false; document.getElementById('btnSalvarEquipe').innerText = "Cadastrar Integrante"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'none'; }
-        async function salvarUsuarioEquipe() { const masterId = document.getElementById('userId').value; const cpf = document.getElementById('equipeCpf').value; const payload = { cpf: cpf, nome: document.getElementById('equipeNome').value, email: document.getElementById('equipeEmail').value, ativo: document.getElementById('checkAtivo').checked, podeDarBaixa: document.getElementById('checkRetirada').checked, podeCadastrarItens: document.getElementById('checkAdmin').checked, masterAdmin: document.getElementById('checkMaster').checked }; if(!payload.cpf || !payload.nome) return; const url = modoEdicaoEquipe ? `${urlBase}/usuarios/${cpf}` : `${urlBase}/usuarios`; const res = await fetch(url, { method: modoEdicaoEquipe ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify(payload) }); if (res.ok) { mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green"); cancelarEdicaoEquipe(); const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        function cancelarEdicaoEquipe() { modoEdicaoEquipe = false; document.getElementById('tituloFormEquipe').innerText = "👤 Novo Integrante"; const c = document.getElementById('equipeCpf'); c.value = ''; c.disabled = false; document.getElementById('equipeNome').value = ''; document.getElementById('equipeEmail').value = ''; document.getElementById('checkAtivo').checked = true; document.getElementById('checkRetirada').checked = true; document.getElementById('checkAdmin').checked = false; document.getElementById('checkMaster').checked = false; document.getElementById('btnSalvarEquipe').innerText = "Cadastrar"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'none'; }
+        
+        async function salvarUsuarioEquipe() { 
+            const masterId = document.getElementById('userId').value; 
+            const cpf = document.getElementById('equipeCpf').value; 
+            
+            // 👇 VALIDAÇÃO ADICIONADA: Verifica se possui exatamente 11 caracteres numéricos
+            if (cpf.length !== 11) {
+                mostrarAviso("O CPF deve conter exatamente 11 números!", "red");
+                return;
+            }
+
+            const payload = { cpf: cpf, nome: document.getElementById('equipeNome').value, email: document.getElementById('equipeEmail').value, ativo: document.getElementById('checkAtivo').checked, podeDarBaixa: document.getElementById('checkRetirada').checked, podeCadastrarItens: document.getElementById('checkAdmin').checked, masterAdmin: document.getElementById('checkMaster').checked }; 
+            if(!payload.cpf || !payload.nome) return; 
+            
+            const url = modoEdicaoEquipe ? `${urlBase}/usuarios/${cpf}` : `${urlBase}/usuarios`; 
+            const res = await fetch(url, { method: modoEdicaoEquipe ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify(payload) }); 
+            if (res.ok) { mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green"); cancelarEdicaoEquipe(); const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } 
+        }
+        
         async function alterarStatusEquipe(cpf, status) { const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify({ ativo: status }) }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
         async function deletarUsuarioEquipe(cpf) { if(!confirm("Excluir?")) return; const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}`, { method: 'DELETE', headers: { 'x-usuario-id': masterId } }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
         function mostrarAviso(texto, cor) { const div = document.getElementById('mensagem'); div.innerHTML = texto; div.style.display = 'block'; if(cor === "red") { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; } else if(cor === "green") { div.style.backgroundColor = "#e8f5e9"; div.style.color = "#2e7d32"; } else { div.style.backgroundColor = "#e3f2fd"; div.style.color = "#1565c0"; } setTimeout(() => div.style.display = 'none', 3500); }
