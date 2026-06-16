@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guardião - Casa do Pai Chico</title>
     
+    <!-- ÍCONE DA TELA DO CELULAR: Usa a logo do Guardião -->
     <link rel="icon" type="image/png" href="logo-guardiao.png">
     <link rel="icon" sizes="192x192" href="logo-guardiao.png">
     <link rel="apple-touch-icon" href="logo-guardiao.png">
@@ -17,7 +18,7 @@
             --cor-card: #ffffff; --cor-perigo: #e74c3c; --cor-selecionado: #f8d7da; --cor-sucesso: #2e7d32;
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--cor-fundo); color: var(--cor-texto); margin: 0; padding: 20px 20px 90px 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; box-sizing: border-box; }
-        .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 500px;}
+        .header { text-align: center; margin-bottom: 20px; width: 100%; max-width: 500px; position: relative; }
         .logo { max-width: 100px; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin-bottom: 8px; }
         .titulo-terreiro { font-size: 24px; font-weight: bold; margin: 0; color: #222; text-transform: uppercase; letter-spacing: 1px;}
         .subtitulo-sistema { font-size: 13px; color: #666; margin-top: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; }
@@ -29,6 +30,24 @@
         .row { display: flex; gap: 10px; align-items: flex-end; } .col { flex: 1; }
         .divisor { height: 2px; background-color: #eee; margin: 25px 0; }
         
+        /* BOTÃO SAIR NO CABEÇALHO SUPERIOR DIREITO */
+        .btn-logout-header {
+            position: absolute;
+            top: 10px;
+            right: 0;
+            background: none;
+            border: 1px solid #ccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: bold;
+            z-index: 10;
+        }
+        .btn-logout-header:hover { background: #e0e0e0; }
+
         /* GIRA */
         .categorias-container { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; margin-top: 5px; scrollbar-width: none; }
         .categorias-container::-webkit-scrollbar { display: none; }
@@ -76,13 +95,10 @@
         .nav-item.master-ui.ativo { color: var(--cor-master); }
         .nav-item.painel-ui.ativo { color: var(--cor-painel); }
         .nav-icon { font-size: 20px; margin-bottom: 4px; }
-        
-        #mensagem { text-align: center; font-weight: bold; font-size: 14px; padding: 12px; border-radius: 10px; display: none; position: fixed; top: 15px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 450px; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);}
-        .btn-logout { background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; color: #666; margin-top: 5px;}
 
         @media print {
             body { background: white; padding: 0; }
-            .nav-inferior, .btn-logout, .btn-painel, .sub-abas, #containerLogin, #mensagem { display: none !important; }
+            .nav-inferior, .btn-logout-header, .btn-painel, .sub-abas, #containerLogin, #mensagem { display: none !important; }
             .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
             .secao-app { display: none !important; }
             #abaPainel { display: block !important; } 
@@ -99,6 +115,9 @@
     <div id="mensagem"></div>
 
     <div class="header">
+        <!-- 👇 NOVO BOTÃO DE SAIR CONFIGURADO NO TOPO -->
+        <button class="btn-logout-header" id="btnSairHeader" onclick="logout()" style="display: none;">Sair</button>
+        
         <img src="logo-terreiro.png" alt="Logo" class="logo">
         <h1 class="titulo-terreiro">Casa do Pai Chico</h1>
         <p class="subtitulo-sistema" id="nomeAbaAtual">Sistema Guardião</p>
@@ -230,7 +249,8 @@
                             </tr>
                         </thead>
                         <tbody id="corpoTabelaConferencia">
-                            </tbody>
+                            <!-- Injetado dinamicamente -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -238,7 +258,7 @@
             <button class="btn-painel" onclick="window.print()">🖨️ Gerar PDF / Imprimir Relatório</button>
         </div>
 
-        <center><button class="btn-logout" onclick="logout()">Trocar de CPF (Sair)</button></center>
+        <!-- 🚫 O BOTÃO ANTIGO DAQUI DE BAIXO FOI REMOVIDO PARA DESPOLUIR A TELA -->
     </div>
 
     <div class="nav-inferior" id="barraNavegacao" style="display: none;">
@@ -277,6 +297,7 @@
                     document.getElementById('containerLogin').style.display = 'none';
                     document.getElementById('areaPrincipalApp').style.display = 'block';
                     document.getElementById('barraNavegacao').style.display = 'flex';
+                    document.getElementById('btnSairHeader').style.display = 'block'; // Exibe o Sair no topo
                     todosItensGira = await resposta.json();
                     await avaliarPermissoesAbas(cpf);
                     montarCategoriasGira(); renderizarProdutosGira('Todos');
@@ -297,6 +318,7 @@
         function logout() {
             localStorage.removeItem('usuario_terreiro'); document.getElementById('userId').value = '';
             document.getElementById('containerLogin').style.display = 'block'; document.getElementById('areaPrincipalApp').style.display = 'none'; document.getElementById('barraNavegacao').style.display = 'none';
+            document.getElementById('btnSairHeader').style.display = 'none'; // Oculta o Sair do topo
             mudarAba('retirada', document.querySelectorAll('.nav-item')[0]);
         }
 
@@ -500,7 +522,7 @@
                 montarCategoriasGira(); 
                 renderizarProdutosGira('Todos'); 
                 carregarProdutosAdmin();
-            } catch(e) { mostrarAviso("Erro ao processar a exclusão in lote.", "red"); }
+            } catch(e) { mostrarAviso("Erro ao processar a exclusão em lote.", "red"); }
         }
 
         function baixarModeloExcel() { const dadosModelo = [["Nome", "Categoria", "Quantidade", "EstoqueMinimo"], ["Vela Branca de 7 Dias", "Velas", 50, 10], ["Alfazema Líquida", "Bebidas", 12, 4], ["Fumo de Rolo", "Fumos", 15, 5]]; const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dadosModelo); ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}]; XLSX.utils.book_append_sheet(wb, ws, "Modelo Guardião"); XLSX.writeFile(wb, "modelo_cadastro_estoque.xlsx"); mostrarAviso("Modelo baixado!", "green"); }
@@ -635,7 +657,7 @@
             }
         }
 
-        async function editarProdutoAdmin(id, nomeAntigo) { const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo); if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens/${id}/editar`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ novoNome }) }); if (res.ok) { mostrarAviso("Nome do produto atualizado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
+        async function editarProdutoAdmin(id, nomeAntigo) { const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo); if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens/${id}/editar`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ novoNome }) }); if (res.ok) { mostrarAviso("Nome do produto updated!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
         async function cadastrarProdutoAdmin() { const cpf = document.getElementById('userId').value; const payload = { categoria: document.getElementById('selectCategoriaAdmin').value, nome: document.getElementById('nomeProdutoAdmin').value, quantidadeAtual: document.getElementById('qtdInicialAdmin').value, estoqueMinimo: document.getElementById('estoqueMinAdmin').value }; if(!payload.categoria || !payload.nome) return mostrarAviso("Preencha!", "red"); const res = await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify(payload) }); if (res.ok) { document.getElementById('nomeProdutoAdmin').value = ''; mostrarAviso("Produto cadastrado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
         async function deletarProdutoAdmin(id) { if(!confirm("Excluir?")) return; const cpf = document.getElementById('userId').value; await fetch(`${urlBase}/itens/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); }
 
@@ -661,7 +683,6 @@
             const masterId = document.getElementById('userId').value; 
             const cpf = document.getElementById('equipeCpf').value; 
             
-            // 👇 VALIDAÇÃO ADICIONADA: Verifica se possui exatamente 11 caracteres numéricos
             if (cpf.length !== 11) {
                 mostrarAviso("O CPF deve conter exatamente 11 números!", "red");
                 return;
