@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guardião</title>
+    <title>Guardião - Casa do Pai Chico</title>
     
     <!-- ÍCONE DA TELA DO CELULAR: Usa a logo do Guardião -->
     <link rel="icon" type="image/png" href="logo-guardiao.png">
@@ -56,11 +56,18 @@
         .box-lote { background: #fdfefe; border: 2px dashed var(--cor-admin); padding: 15px; border-radius: 12px; margin-top: 15px; }
         .conflito-item { background: #fff8e1; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
 
-        /* DESIGN DAS SUB-ABAS DO ESTOQUE */
+        /* DESIGN DAS SUB-ABAS DO ESTOQUE E RELATÓRIO */
         .sub-abas { display: flex; gap: 5px; margin-bottom: 20px; background: #f1f1f1; padding: 6px; border-radius: 12px; }
         .sub-aba-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: bold; color: #888; cursor: pointer; border-radius: 8px; transition: 0.3s; font-size: 13px; text-transform: uppercase;}
         .sub-aba-btn.ativa { background: var(--cor-card); color: var(--cor-admin); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
+        .sub-aba-btn.ativa-painel { color: var(--cor-painel); }
         .secao-interna { display: none; } .secao-interna.ativa { display: block; }
+
+        /* TABELA DE CONFERÊNCIA */
+        .tabela-conferencia { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: left; }
+        .tabela-conferencia th { background-color: #f1f1f1; padding: 10px; font-weight: bold; border-bottom: 2px solid #ddd; text-transform: uppercase; font-size: 11px; color: #555; }
+        .tabela-conferencia td { padding: 10px; border-bottom: 1px solid #eee; }
+        .tabela-conferencia tr:nth-child(even) { background-color: #fafafa; }
 
         /* NAV BAR INFERIOR */
         .nav-inferior { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
@@ -76,10 +83,12 @@
 
         @media print {
             body { background: white; padding: 0; }
-            .nav-inferior, .btn-logout, .btn-painel, #containerLogin, #mensagem { display: none !important; }
+            .nav-inferior, .btn-logout, .btn-painel, .sub-abas, #containerLogin, #mensagem { display: none !important; }
             .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
             .secao-app { display: none !important; }
             #abaPainel { display: block !important; } 
+            .secao-interna { display: none !important; }
+            .secao-interna.ativa { display: block !important; }
             .lista-gerenciamento { max-height: none !important; overflow: visible !important; border: none; }
             .item-lista { border-bottom: 1px solid #000 !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -192,13 +201,43 @@
         </div>
 
         <div id="abaPainel" class="secao-app">
-            <h3 style="color: var(--cor-painel); margin-top:0;">🚨 Prioridade de Abastecimento</h3>
-            <p style="margin:0; font-size:12px; color:#666;">Itens que atingiram o estoque mínimo de segurança.</p>
-            <div class="lista-gerenciamento" id="listaAlertasPainel" style="max-height: 200px; border-color: var(--cor-perigo);"></div>
-            <div class="divisor"></div>
-            <h3 style="color: var(--cor-painel); margin-top:0;">📈 Média de Consumo (30 dias)</h3>
-            <p style="margin:0; font-size:12px; color:#666;">Ranking do que mais foi retirado no último mês.</p>
-            <div class="lista-gerenciamento" id="listaConsumoPainel" style="max-height: 250px;"></div>
+            <!-- NOVAS SUB-ABAS DE RELATÓRIO -->
+            <div class="sub-abas">
+                <button class="sub-aba-btn ativa ativa-painel" onclick="mudarSubAbaRelatorio('dashboard', this)">📊 Painel Geral</button>
+                <button class="sub-aba-btn" onclick="mudarSubAbaRelatorio('conferencia', this)">📋 Ficha de Conferência</button>
+            </div>
+
+            <!-- SUB-ABA 1: VISÃO DASHBOARD ATUAL -->
+            <div id="subRelatorioDashboard" class="secao-interna ativa">
+                <h3 style="color: var(--cor-painel); margin-top:0;">🚨 Prioridade de Abastecimento</h3>
+                <p style="margin:0; font-size:12px; color:#666;">Itens que atingiram o estoque mínimo de segurança.</p>
+                <div class="lista-gerenciamento" id="listaAlertasPainel" style="max-height: 200px; border-color: var(--cor-perigo);"></div>
+                <div class="divisor"></div>
+                <h3 style="color: var(--cor-painel); margin-top:0;">📈 Média de Consumo (30 dias)</h3>
+                <p style="margin:0; font-size:12px; color:#666;">Ranking do que mais foi retirado no último mês.</p>
+                <div class="lista-gerenciamento" id="listaConsumoPainel" style="max-height: 250px;"></div>
+            </div>
+
+            <!-- SUB-ABA 2: VISÃO PLANILHA DE CONFERÊNCIA -->
+            <div id="subRelatorioConferencia" class="secao-interna">
+                <h3 style="color: var(--cor-painel); margin-top:0;">📝 Ficha para Conferência Física</h3>
+                <p style="margin:0; font-size:12px; color:#666;">Lista ordenada de todos os produtos cadastrados e saldos.</p>
+                <div class="lista-gerenciamento" style="max-height: 480px; padding: 0 10px;">
+                    <table class="tabela-conferencia">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Produto</th>
+                                <th style="text-align: right;">Em Estoque</th>
+                            </tr>
+                        </thead>
+                        <tbody id="corpoTabelaConferencia">
+                            <!-- Injetado dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <button class="btn-painel" onclick="window.print()">🖨️ Gerar PDF / Imprimir Relatório</button>
         </div>
 
@@ -274,13 +313,21 @@
         }
 
         function mudarSubAbaEstoque(nomeSubAba, botaoClicado) {
-            document.querySelectorAll('.sub-aba-btn').forEach(b => b.classList.remove('ativa')); botaoClicado.classList.add('ativa');
-            document.querySelectorAll('.secao-interna').forEach(s => s.classList.remove('ativa'));
+            document.querySelectorAll('#abaEstoque .sub-aba-btn').forEach(b => b.classList.remove('ativa')); botaoClicado.classList.add('ativa');
+            document.querySelectorAll('#abaEstoque .secao-interna').forEach(s => s.classList.remove('ativa'));
             if(nomeSubAba === 'cadastro') document.getElementById('subEstoqueCadastro').classList.add('ativa');
             if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
         }
 
-        // 🛠️ FUNÇÃO ATUALIZADA: Agora exibe "CATEGORIA - Nome" na mesma linha e mesma fonte
+        // 👇 NOVA FUNÇÃO: Controla a troca de abas dentro da seção de relatórios
+        function mudarSubAbaRelatorio(nomeSubAba, botaoClicado) {
+            document.querySelectorAll('#abaPainel .sub-aba-btn').forEach(b => b.classList.remove('ativa', 'ativa-painel')); 
+            botaoClicado.classList.add('ativa', 'ativa-painel');
+            document.querySelectorAll('#abaPainel .secao-interna').forEach(s => s.classList.remove('ativa'));
+            if(nomeSubAba === 'dashboard') document.getElementById('subRelatorioDashboard').classList.add('ativa');
+            if(nomeSubAba === 'conferencia') document.getElementById('subRelatorioConferencia').classList.add('ativa');
+        }
+
         async function carregarDadosPainel() {
             const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/dashboard`, { headers: { 'x-usuario-id': cpf } });
             if (res.ok) {
@@ -320,6 +367,33 @@
                             </div>`; 
                     }); 
                 }
+
+                // 👇 INJEÇÃO DA TABELA COMPLETA DE CONFERÊNCIA: Organizada de A-Z por categoria
+                const tabelaCorpo = document.getElementById('corpoTabelaConferencia');
+                tabelaCorpo.innerHTML = '';
+                
+                // Ordena os itens alfabeticamente por categoria, e depois por nome
+                const itensOrdenados = [...todosItensGira].sort((a, b) => {
+                    const catA = (a.categoria || '').toLowerCase();
+                    const catB = (b.categoria || '').toLowerCase();
+                    if (catA !== catB) return catA.localeCompare(catB);
+                    return (a.nome || '').toLowerCase().localeCompare((b.nome || '').toLowerCase());
+                });
+
+                if (itensOrdenados.length === 0) {
+                    tabelaCorpo.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#888; padding:20px;">Nenhum produto cadastrado no estoque.</td></tr>';
+                } else {
+                    itensOrdenados.forEach(item => {
+                        tabelaCorpo.innerHTML += `
+                            <tr>
+                                <td style="font-weight:600; color:#555;">${item.categoria.toUpperCase()}</td>
+                                <td>${item.nome}</td>
+                                <td style="text-align: right; font-weight: bold; color: ${item.quantidadeAtual <= item.estoqueMinimo ? 'var(--cor-perigo)' : 'var(--cor-texto)'};">
+                                    ${item.quantidadeAtual}
+                                </td>
+                            </tr>`;
+                    });
+                }
             } else { mostrarAviso("Erro ao gerar relatórios.", "red"); }
         }
 
@@ -357,7 +431,7 @@
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
             const cpf = document.getElementById('userId').value; mostrarAviso("Renomeando e atualizando produtos...", "blue");
             const res = await fetch(`${urlBase}/categorias/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: novoNome, nomeAntigo: nomeAntigo }) });
-            if(res.ok) { mostrarAviso("Categoria updated!", "green"); carregarCategoriasAdmin(); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); } else { mostrarAviso((await res.json()).erro, "red"); }
+            if(res.ok) { mostrarAviso("Categoria alterada!", "green"); carregarCategoriasAdmin(); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); } else { mostrarAviso((await res.json()).erro, "red"); }
         }
 
         async function deletarCategoriaAdmin(id, nome) { 
@@ -455,7 +529,7 @@
                     const quantidade = Number(colunas[2]); const estoqueMin = colunas[3] ? Number(colunas[3]) : 5; 
                     if (!nome || !categoria || isNaN(quantidade)) continue; 
                     const correspondencia = todosItensGira.find(item => item.nome.toLowerCase() === nome.toLowerCase() && item.categoria.toLowerCase() === categoria.toLowerCase()); 
-                    const itemObj = { nome, categoria, quantidade: quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null }; 
+                    const itemObj = { nome, categoria, quantidade: quantity = quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null }; 
                     if (correspondencia) { 
                         totalDuplicados++; itemObj.existe = true; itemObj.idExistente = correspondencia.id; 
                         divLista.innerHTML += `<div class="conflito-item"><div><b>${nome}</b> (${categoria}) <br> <small>Planilha: +${quantidade} | Atual: ${correspondencia.quantidadeAtual}</small></div><label style="margin:0; display:inline-flex; gap:5px;"><input type="checkbox" id="checkLote-${itensParaImportarLote.length}" checked> Somar</label></div>`; 
@@ -470,17 +544,17 @@
 
         async function processarImportacaoLoteFinal() { 
             const cpf = document.getElementById('userId').value; mostrarAviso("Importando dados...", "blue"); 
-            let categoriasExistentes = []; 
+            let categoriesExistentes = []; 
             try { 
                 const resCat = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } }); 
-                if (resCat.ok) { const cats = await resCat.json(); categoriasExistentes = cats.map(c => c.nome.toLowerCase().trim()); } 
+                if (resCat.ok) { const cats = await resCat.json(); categoriesExistentes = cats.map(c => c.nome.toLowerCase().trim()); } 
             } catch(e) { console.error(e); } 
             for (let i = 0; i < itensParaImportarLote.length; i++) { 
                 const item = itensParaImportarLote[i]; const catNomeNormalizado = item.categoria.toLowerCase().trim(); 
-                if (!categoriasExistentes.includes(catNomeNormalizado)) { 
+                if (!categoriesExistentes.includes(catNomeNormalizado)) { 
                     try { 
                         await fetch(`${urlBase}/categorias`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: item.categoria }) }); 
-                        categoriasExistentes.push(catNomeNormalizado); 
+                        categoriesExistentes.push(catNomeNormalizado); 
                     } catch(e) { console.error(e); } 
                 } 
                 if (item.existe) { 
@@ -522,7 +596,7 @@
                 const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`; 
                 const textoCategoria = categoriaFiltro === 'Todos' ? `<span style="position: absolute; top: 6px; left: 8px; font-size: 10px; color: #b0b0b0; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px;">${item.categoria}</span>` : ''; 
                 card.innerHTML = `${textoCategoria}<p>${item.nome}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`; 
-                card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; 
+                card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.classList.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; 
                 container.appendChild(card); 
             }); 
         }
@@ -575,7 +649,7 @@
         
         async function excluirProdutosEmLote() {
             const selecionados = Array.from(document.querySelectorAll('.chk-produto-item:checked')).map(chk => chk.value);
-            if(selecionados.length === 0) return mostrarAviso("Selecione au menos um produto!", "red");
+            if(selecionados.length === 0) return mostrarAviso("Selecione ao menos um produto!", "red");
             if(!confirm(`🚨 ALERTA MÁXIMO:\nDeseja mesmo excluir DEFINITIVAMENTE os ${selecionados.length} produtos selecionados do sistema?`)) return;
             const cpf = document.getElementById('userId').value; mostrarAviso("Excluindo produtos...", "blue");
             try {
