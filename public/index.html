@@ -280,7 +280,7 @@
             if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
         }
 
-        // 👇 FUNÇÃO ATUALIZADA: Mapeia e traz a categoria correta para as duas listas de relatórios
+        // 🛠️ FUNÇÃO ATUALIZADA: Agora exibe "CATEGORIA - Nome" na mesma linha e mesma fonte
         async function carregarDadosPainel() {
             const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/dashboard`, { headers: { 'x-usuario-id': cpf } });
             if (res.ok) {
@@ -296,8 +296,7 @@
                         divAlertas.innerHTML += `
                             <div class="item-lista" style="background:#fff3e0;">
                                 <div>
-                                    <b>${item.nome}</b><br>
-                                    <small style="color:#777; font-weight:bold; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">${catNome}</small><br>
+                                    <b>${catNome.toUpperCase()} - ${item.nome}</b><br>
                                     <small style="color:var(--cor-perigo); font-weight:500;">Estoque: ${item.atual} (Mínimo recomendado: ${item.min})</small>
                                 </div>
                                 <span style="font-size:20px;">⚠️</span>
@@ -315,8 +314,7 @@
                         divConsumo.innerHTML += `
                             <div class="item-lista">
                                 <div>
-                                    <b>${medalha}${item.nome}</b><br>
-                                    <small style="color:#777; font-weight:bold; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">${catNome}</small>
+                                    <b>${medalha}${catNome.toUpperCase()} - ${item.nome}</b>
                                 </div>
                                 <div style="font-weight:bold; color:var(--cor-painel); display:flex; align-items:center;">${item.totalGasto} unidades</div>
                             </div>`; 
@@ -359,7 +357,7 @@
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
             const cpf = document.getElementById('userId').value; mostrarAviso("Renomeando e atualizando produtos...", "blue");
             const res = await fetch(`${urlBase}/categorias/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: novoNome, nomeAntigo: nomeAntigo }) });
-            if(res.ok) { mostrarAviso("Categoria atualizada com sucesso!", "green"); carregarCategoriasAdmin(); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); } else { mostrarAviso((await res.json()).erro, "red"); }
+            if(res.ok) { mostrarAviso("Categoria updated!", "green"); carregarCategoriasAdmin(); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); } else { mostrarAviso((await res.json()).erro, "red"); }
         }
 
         async function deletarCategoriaAdmin(id, nome) { 
@@ -577,7 +575,7 @@
         
         async function excluirProdutosEmLote() {
             const selecionados = Array.from(document.querySelectorAll('.chk-produto-item:checked')).map(chk => chk.value);
-            if(selecionados.length === 0) return mostrarAviso("Selecione ao menos um produto!", "red");
+            if(selecionados.length === 0) return mostrarAviso("Selecione au menos um produto!", "red");
             if(!confirm(`🚨 ALERTA MÁXIMO:\nDeseja mesmo excluir DEFINITIVAMENTE os ${selecionados.length} produtos selecionados do sistema?`)) return;
             const cpf = document.getElementById('userId').value; mostrarAviso("Excluindo produtos...", "blue");
             try {
