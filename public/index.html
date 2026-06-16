@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guardião</title>
     
+    <!-- ÍCONE DA TELA DO CELULAR: Usa a logo do Guardião -->
     <link rel="icon" type="image/png" href="logo-guardiao.png">
     <link rel="icon" sizes="192x192" href="logo-guardiao.png">
     <link rel="apple-touch-icon" href="logo-guardiao.png">
@@ -220,7 +221,6 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Se o seu backend rodar em um domínio separado do Render, adicione a URL aqui (ex: 'https://api-terreiro.onrender.com')
         const urlBase = ''; 
         
         let todosItensGira = []; let usuariosDiretoria = [];
@@ -280,13 +280,48 @@
             if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
         }
 
+        // 👇 FUNÇÃO ATUALIZADA: Mapeia e traz a categoria correta para as duas listas de relatórios
         async function carregarDadosPainel() {
             const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/dashboard`, { headers: { 'x-usuario-id': cpf } });
             if (res.ok) {
                 const dados = await res.json(); const divAlertas = document.getElementById('listaAlertasPainel'); const divConsumo = document.getElementById('listaConsumoPainel');
                 divAlertas.innerHTML = ''; divConsumo.innerHTML = '';
-                if (dados.alertas.length === 0) { divAlertas.innerHTML = '<div style="padding:15px; text-align:center; color:var(--cor-sucesso);">✅ Todo o estoque está seguro!</div>'; } else { dados.alertas.forEach(item => { divAlertas.innerHTML += `<div class="item-lista" style="background:#fff3e0;"><div><b>${item.nome}</b><br><small style="color:var(--cor-perigo);">Estoque: ${item.atual} (Mínimo recomendado: ${item.min})</small></div><span style="font-size:20px;">⚠️</span></div>`; }); }
-                if (dados.rankingConsumo.length === 0) { divConsumo.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">Nenhuma retirada registrada nos últimos 30 dias.</div>'; } else { dados.rankingConsumo.forEach((item, index) => { let medalha = ''; if (index === 0) medalha = '🥇 '; if (index === 1) medalha = '🥈 '; if (index === 2) medalha = '🥉 '; divConsumo.innerHTML += `<div class="item-lista"><div><b>${medalha}${item.nome}</b></div><div style="font-weight:bold; color:var(--cor-painel);">${item.totalGasto} unidades</div></div>`; }); }
+                
+                if (dados.alertas.length === 0) { 
+                    divAlertas.innerHTML = '<div style="padding:15px; text-align:center; color:var(--cor-sucesso);">✅ Todo o estoque está seguro!</div>'; 
+                } else { 
+                    dados.alertas.forEach(item => { 
+                        const itemEstoque = todosItensGira.find(i => i.nome.toLowerCase().trim() === item.nome.toLowerCase().trim()) || {};
+                        const catNome = item.categoria || itemEstoque.categoria || 'Geral';
+                        divAlertas.innerHTML += `
+                            <div class="item-lista" style="background:#fff3e0;">
+                                <div>
+                                    <b>${item.nome}</b><br>
+                                    <small style="color:#777; font-weight:bold; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">${catNome}</small><br>
+                                    <small style="color:var(--cor-perigo); font-weight:500;">Estoque: ${item.atual} (Mínimo recomendado: ${item.min})</small>
+                                </div>
+                                <span style="font-size:20px;">⚠️</span>
+                            </div>`; 
+                    }); 
+                }
+                
+                if (dados.rankingConsumo.length === 0) { 
+                    divConsumo.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">Nenhuma retirada registrada nos últimos 30 dias.</div>'; 
+                } else { 
+                    dados.rankingConsumo.forEach((item, index) => { 
+                        let medalha = ''; if (index === 0) medalha = '🥇 '; if (index === 1) medalha = '🥈 '; if (index === 2) medalha = '🥉 '; 
+                        const itemEstoque = todosItensGira.find(i => i.nome.toLowerCase().trim() === item.nome.toLowerCase().trim()) || {};
+                        const catNome = item.categoria || itemEstoque.categoria || 'Geral';
+                        divConsumo.innerHTML += `
+                            <div class="item-lista">
+                                <div>
+                                    <b>${medalha}${item.nome}</b><br>
+                                    <small style="color:#777; font-weight:bold; text-transform:uppercase; font-size:10px; letter-spacing:0.5px;">${catNome}</small>
+                                </div>
+                                <div style="font-weight:bold; color:var(--cor-painel); display:flex; align-items:center;">${item.totalGasto} unidades</div>
+                            </div>`; 
+                    }); 
+                }
             } else { mostrarAviso("Erro ao gerar relatórios.", "red"); }
         }
 
