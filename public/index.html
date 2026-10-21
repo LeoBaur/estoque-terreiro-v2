@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guardião - Casa do Pai Chico</title>
     
-    <!-- ÍCONE DA TELA DO CELULAR: Usa a logo do Guardião -->
+    <!-- ÍCONES -->
     <link rel="icon" type="image/png" href="logo-guardiao.png">
     <link rel="icon" sizes="192x192" href="logo-guardiao.png">
     <link rel="apple-touch-icon" href="logo-guardiao.png">
@@ -30,22 +30,7 @@
         .row { display: flex; gap: 10px; align-items: flex-end; } .col { flex: 1; }
         .divisor { height: 2px; background-color: #eee; margin: 25px 0; }
         
-        /* BOTÃO SAIR NO CABEÇALHO SUPERIOR DIREITO */
-        .btn-logout-header {
-            position: absolute;
-            top: 10px;
-            right: 0;
-            background: none;
-            border: 1px solid #ccc;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            color: #666;
-            text-transform: uppercase;
-            font-weight: bold;
-            z-index: 10;
-        }
+        .btn-logout-header { position: absolute; top: 10px; right: 0; background: none; border: 1px solid #ccc; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; color: #666; text-transform: uppercase; font-weight: bold; z-index: 10; }
         .btn-logout-header:hover { background: #e0e0e0; }
 
         /* GIRA */
@@ -60,7 +45,7 @@
         .btn-gira { background-color: var(--cor-primaria); color: white; border: none; padding: 18px; font-size: 16px; font-weight: bold; border-radius: 12px; width: 100%; margin-top: 25px; cursor: pointer; text-transform: uppercase; }
         .btn-gira:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        /* ADMIN, MASTER E PAINEL */
+        /* ADMIN & RELATÓRIOS */
         .btn-admin { background-color: var(--cor-admin); color: white; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
         .btn-master { background-color: var(--cor-master); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 20px;}
         .btn-painel { background-color: var(--cor-painel); color: white; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; width: 100%; margin-top: 15px;}
@@ -74,20 +59,17 @@
         .box-lote { background: #fdfefe; border: 2px dashed var(--cor-admin); padding: 15px; border-radius: 12px; margin-top: 15px; }
         .conflito-item { background: #fff8e1; border: 1px solid #ffe082; padding: 8px; border-radius: 6px; margin-bottom: 6px; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
 
-        /* DESIGN DAS SUB-ABAS DO ESTOQUE E RELATÓRIO */
         .sub-abas { display: flex; gap: 5px; margin-bottom: 20px; background: #f1f1f1; padding: 6px; border-radius: 12px; }
         .sub-aba-btn { flex: 1; padding: 12px; border: none; background: transparent; font-weight: bold; color: #888; cursor: pointer; border-radius: 8px; transition: 0.3s; font-size: 13px; text-transform: uppercase;}
         .sub-aba-btn.ativa { background: var(--cor-card); color: var(--cor-admin); box-shadow: 0 2px 5px rgba(0,0,0,0.08); }
         .sub-aba-btn.ativa-painel { color: var(--cor-painel); }
         .secao-interna { display: none; } .secao-interna.ativa { display: block; }
 
-        /* TABELA DE CONFERÊNCIA */
         .tabela-conferencia { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; text-align: left; }
         .tabela-conferencia th { background-color: #f1f1f1; padding: 10px; font-weight: bold; border-bottom: 2px solid #ddd; text-transform: uppercase; font-size: 11px; color: #555; }
         .tabela-conferencia td { padding: 10px; border-bottom: 1px solid #eee; }
         .tabela-conferencia tr:nth-child(even) { background-color: #fafafa; }
 
-        /* NAV BAR INFERIOR */
         .nav-inferior { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: #ffffff; box-shadow: 0 -4px 15px rgba(0,0,0,0.08); display: flex; justify-content: space-around; align-items: center; z-index: 2000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; color: #888; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; flex: 1; height: 100%; justify-content: center;}
         .nav-item.ativo { color: var(--cor-primaria); }
@@ -115,9 +97,7 @@
     <div id="mensagem"></div>
 
     <div class="header">
-        <!-- 👇 NOVO BOTÃO DE SAIR CONFIGURADO NO TOPO -->
-        <button class="btn-logout-header" id="btnSairHeader" onclick="logout()" style="display: none;">Sair</button>
-        
+        <button class="btn-logout-header" id="btnSairHeader" style="display: none;">Sair</button>
         <img src="logo-terreiro.png" alt="Logo" class="logo">
         <h1 class="titulo-terreiro">Casa do Pai Chico</h1>
         <p class="subtitulo-sistema" id="nomeAbaAtual">Sistema Guardião</p>
@@ -125,11 +105,10 @@
 
     <div class="container" id="containerLogin">
         <label style="margin-top:0; text-align:center;">Identifique-se para começar:</label>
-        <input type="text" id="userId" placeholder="Digite seu CPF (apenas números)..." inputmode="numeric" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onchange="fazerLogin()">
+        <input type="text" id="userId" placeholder="Digite seu CPF (apenas números)..." inputmode="numeric" maxlength="11">
     </div>
 
     <div class="container" id="areaPrincipalApp" style="display: none; margin-top: 10px;">
-        
         <div id="abaRetirada" class="secao-app ativa">
             <p style="margin: 0 0 15px 0; color:#777; font-size:14px; text-align:center;">Toque no item e informe a quantidade.</p>
             <label>1. Filtre por Categoria:</label>
@@ -137,15 +116,14 @@
             <label>2. Toque no Produto:</label>
             <div class="produtos-grid" id="listaProdutosGira"></div>
             <label>3. Quantidade a Retirar:</label>
-            <input type="number" id="quantidadeGira" value="1" min="1" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-            <button class="btn-gira" id="btnConfirmarGira" onclick="darBaixaGira()" disabled>SELECIONE UM PRODUTO</button>
+            <input type="number" id="quantidadeGira" value="1" min="1" inputmode="numeric" pattern="[0-9]*">
+            <button class="btn-gira" id="btnConfirmarGira" disabled>SELECIONE UM PRODUTO</button>
         </div>
 
         <div id="abaEstoque" class="secao-app">
-            
             <div class="sub-abas">
-                <button class="sub-aba-btn ativa" onclick="mudarSubAbaEstoque('cadastro', this)">➕ Cadastros</button>
-                <button class="sub-aba-btn" onclick="mudarSubAbaEstoque('gerenciar', this)">⚙️ Gerenciar</button>
+                <button class="sub-aba-btn ativa" id="btnSubCadastro">➕ Cadastros</button>
+                <button class="sub-aba-btn" id="btnSubGerenciar">⚙️ Gerenciar</button>
             </div>
 
             <div id="subEstoqueCadastro" class="secao-interna ativa">
@@ -156,20 +134,20 @@
                     <div class="col"><label>Qtd Inicial:</label><input type="number" id="qtdInicialAdmin" value="0" min="0"></div>
                     <div class="col"><label>Estoque Mín.:</label><input type="number" id="estoqueMinAdmin" value="5" min="1"></div>
                 </div>
-                <button class="btn-admin" style="width:100%; margin-top:20px;" onclick="cadastrarProdutoAdmin()">Salvar Novo Produto</button>
+                <button class="btn-admin" style="width:100%; margin-top:20px;" id="btnSalvarProdutoIndiv">Salvar Novo Produto</button>
                 
                 <div class="divisor"></div>
                 
                 <h3 style="color: var(--cor-admin); margin-top:0;">🚀 Importação Excel (.xlsx)</h3>
                 <p style="margin:0; font-size:12px; color:#666;">Carregue sua planilha comum ou baixe o modelo padrão.</p>
                 <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                    <button class="btn-admin" style="background: #34495e; font-size: 13px; padding: 10px 14px; flex: 1; min-width: 160px;" onclick="baixarModeloExcel()">⬇️ Baixar Modelo</button>
-                    <input type="file" id="ficheiroPlanilha" accept=".xlsx, .xls, .csv" onchange="analisarPlanilhaLote()" style="margin-top:0; padding: 8px; flex: 1.5; min-width: 200px;">
+                    <button class="btn-admin" style="background: #34495e; font-size: 13px; padding: 10px 14px; flex: 1; min-width: 160px;" id="btnBaixarModelo">⬇️ Baixar Modelo</button>
+                    <input type="file" id="ficheiroPlanilha" accept=".xlsx, .xls, .csv" style="margin-top:0; padding: 8px; flex: 1.5; min-width: 200px;">
                 </div>
                 <div id="painelLotePreview" class="box-lote" style="display:none;">
                     <h4 style="margin:0 0 10px 0; color: var(--cor-admin);" id="resumoLoteTexto">Análise da Planilha</h4>
                     <div id="listaConflitosLote" style="max-height:150px; overflow-y:auto; margin-bottom:15px;"></div>
-                    <button class="btn-admin" style="width:100%; background: var(--cor-sucesso);" onclick="processarImportacaoLoteFinal()">Confirmar Importação</button>
+                    <button class="btn-admin" style="width:100%; background: var(--cor-sucesso);" id="btnConfirmarLote">Confirmar Importação</button>
                 </div>
             </div>
 
@@ -177,32 +155,30 @@
                 <h3 style="color: var(--cor-admin); margin-top:0;">📋 Gerenciar Categorias</h3>
                 <div class="row">
                     <div class="col"><input type="text" id="novaCategoriaAdmin" placeholder="Criar Nova Categoria..."></div>
-                    <button class="btn-admin" onclick="cadastrarCategoriaAdmin()">Criar</button>
+                    <button class="btn-admin" id="btnCriarCat">Criar</button>
                 </div>
                 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; margin-bottom: 5px; background: #fdfdfd; padding: 6px 10px; border-radius: 8px; border: 1px solid #eee;">
-                    <label style="margin:0; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:bold; color:#666; text-transform:none;"><input type="checkbox" id="chkTodosCategorias" onchange="selecionarTodosCategorias(this)" style="width:16px; height:16px; margin:0; cursor:pointer;"> Selecionar Tudo</label>
-                    <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto; padding:5px 10px; font-size:11px;" onclick="excluirCategoriasEmLote()">Excluir Selecionados</button>
+                    <label style="margin:0; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:bold; color:#666; text-transform:none;"><input type="checkbox" id="chkTodosCategorias" style="width:16px; height:16px; margin:0; cursor:pointer;"> Selecionar Tudo</label>
+                    <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto; padding:5px 10px; font-size:11px;" id="btnExcluirCatLote">Excluir Selecionados</button>
                 </div>
                 <div class="lista-gerenciamento" id="listaCategoriasAdmin"></div>
                 
                 <div class="divisor"></div>
                 
                 <h3 style="color: var(--cor-admin); margin-top:0;">📦 Lista de Produtos</h3>
-                
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; background: #fdfdfd; padding: 6px 10px; border-radius: 8px; border: 1px solid #eee;">
-                    <label style="margin:0; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:bold; color:#666; text-transform:none;"><input type="checkbox" id="chkTodosProdutos" onchange="selecionarTodosProdutos(this)" style="width:16px; height:16px; margin:0; cursor:pointer;"> Selecionar Tudo</label>
-                    <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto; padding:5px 10px; font-size:11px;" onclick="excluirProdutosEmLote()">Excluir Selecionados</button>
+                    <label style="margin:0; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:bold; color:#666; text-transform:none;"><input type="checkbox" id="chkTodosProdutos" style="width:16px; height:16px; margin:0; cursor:pointer;"> Selecionar Tudo</label>
+                    <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto; padding:5px 10px; font-size:11px;" id="btnExcluirProdLote">Excluir Selecionados</button>
                 </div>
                 <div class="lista-gerenciamento" id="listaProdutosAdmin" style="max-height: 250px;"></div>
             </div>
-
         </div>
 
         <div id="abaEquipe" class="secao-app">
             <h3 style="color: var(--cor-master); margin-top:0;" id="tituloFormEquipe">👤 Novo Integrante</h3>
             <label>CPF (apenas 11 números):</label>
-            <input type="text" id="equipeCpf" placeholder="Ex: 00011122233" inputmode="numeric" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+            <input type="text" id="equipeCpf" placeholder="Ex: 00011122233" inputmode="numeric" maxlength="11">
             
             <label>Nome:</label><input type="text" id="equipeNome">
             <label>E-mail:</label><input type="email" id="equipeEmail">
@@ -213,8 +189,8 @@
                 <div class="permissao-item"><input type="checkbox" id="checkAdmin"> Almoxarife</div>
                 <div class="permissao-item"><input type="checkbox" id="checkMaster"> Diretoria</div>
             </div>
-            <button class="btn-master" id="btnSalvarEquipe" onclick="salvarUsuarioEquipe()">Cadastrar</button>
-            <button class="btn-master" id="btnCancelarEdicaoEquipe" style="background:transparent; color:#555; border:2px solid #ccc; margin-top:10px; display:none;" onclick="cancelarEdicaoEquipe()">Cancelar Edição</button>
+            <button class="btn-master" id="btnSalvarEquipe">Cadastrar</button>
+            <button class="btn-master" id="btnCancelarEdicaoEquipe" style="background:transparent; color:#555; border:2px solid #ccc; margin-top:10px; display:none;">Cancelar Edição</button>
             <div class="divisor"></div>
             <h3 style="color: var(--cor-master); margin-top:0;">👥 Equipe</h3>
             <div class="lista-gerenciamento" id="listaUsuariosEquipe" style="max-height:250px;"></div>
@@ -222,8 +198,8 @@
 
         <div id="abaPainel" class="secao-app">
             <div class="sub-abas">
-                <button class="sub-aba-btn ativa ativa-painel" onclick="mudarSubAbaRelatorio('dashboard', this)">📊 Painel Geral</button>
-                <button class="sub-aba-btn" onclick="mudarSubAbaRelatorio('conferencia', this)">📋 Ficha de Conferência</button>
+                <button class="sub-aba-btn ativa ativa-painel" id="btnSubDashboard">📊 Painel Geral</button>
+                <button class="sub-aba-btn" id="btnSubConferencia">📋 Ficha de Conferência</button>
             </div>
 
             <div id="subRelatorioDashboard" class="secao-interna ativa">
@@ -248,457 +224,635 @@
                                 <th style="text-align: right;">Em Estoque</th>
                             </tr>
                         </thead>
-                        <tbody id="corpoTabelaConferencia">
-                            <!-- Injetado dinamicamente -->
-                        </tbody>
+                        <tbody id="corpoTabelaConferencia"></tbody>
                     </table>
                 </div>
             </div>
 
             <button class="btn-painel" onclick="window.print()">🖨️ Gerar PDF / Imprimir Relatório</button>
         </div>
-
-        <!-- 🚫 O BOTÃO ANTIGO DAQUI DE BAIXO FOI REMOVIDO PARA DESPOLUIR A TELA -->
     </div>
 
     <div class="nav-inferior" id="barraNavegacao" style="display: none;">
-        <button class="nav-item ativo" onclick="mudarAba('retirada', this)">
-            <div class="nav-icon">📦</div><span>Retirada</span>
-        </button>
-        <button class="nav-item admin-ui" id="abaBotaoEstoque" style="display: none;" onclick="mudarAba('estoque', this)">
-            <div class="nav-icon">📋</div><span>Estoque</span>
-        </button>
-        <button class="nav-item painel-ui" id="abaBotaoPainel" style="display: none;" onclick="mudarAba('painel', this)">
-            <div class="nav-icon">📊</div><span>Relatórios</span>
-        </button>
-        <button class="nav-item master-ui" id="abaBotaoEquipe" style="display: none;" onclick="mudarAba('equipe', this)">
-            <div class="nav-icon">👥</div><span>Equipe</span>
-        </button>
+        <button class="nav-item ativo" id="navRetirada"><div class="nav-icon">📦</div><span>Retirada</span></button>
+        <button class="nav-item admin-ui" id="abaBotaoEstoque" style="display: none;"><div class="nav-icon">📋</div><span>Estoque</span></button>
+        <button class="nav-item painel-ui" id="abaBotaoPainel" style="display: none;"><div class="nav-icon">📊</div><span>Relatórios</span></button>
+        <button class="nav-item master-ui" id="abaBotaoEquipe" style="display: none;"><div class="nav-icon">👥</div><span>Equipe</span></button>
     </div>
 
-    <script>
-        const urlBase = ''; 
-        
-        let todosItensGira = []; let usuariosDiretoria = [];
-        let itemSelecionadoGiraId = null; let modoEdicaoEquipe = false;
+    <!-- CONEXÃO DIRETA COM FIREBASE FIRESTORE SDK v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { 
+            getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, query, where, Timestamp, increment 
+        } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPXjmT_LYam_Eb_whKmbbX2rwMpHsTF7g",
+            authDomain: "estoque-terreiro-v2.firebaseapp.com",
+            projectId: "estoque-terreiro-v2",
+            storageBucket: "estoque-terreiro-v2.firebasestorage.app",
+            messagingSenderId: "388086940002",
+            appId: "1:388086940002:web:849bd70871dae481aeac3b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let usuarioAtual = null;
+        let todosItensGira = [];
+        let usuariosDiretoria = [];
+        let itemSelecionadoGiraId = null;
+        let modoEdicaoEquipe = false;
         let itensParaImportarLote = [];
 
         window.onload = () => {
             const idSalvo = localStorage.getItem('usuario_terreiro');
-            if (idSalvo) { document.getElementById('userId').value = idSalvo; fazerLogin(); }
+            if (idSalvo) {
+                document.getElementById('userId').value = idSalvo;
+                fazerLogin();
+            }
         };
 
+        document.getElementById('userId').addEventListener('change', fazerLogin);
+        document.getElementById('btnSairHeader').addEventListener('click', logout);
+
         async function fazerLogin() {
-            const cpf = document.getElementById('userId').value; if(!cpf) return;
-            localStorage.setItem('usuario_terreiro', cpf);
+            const cpf = document.getElementById('userId').value.trim();
+            if (!cpf) return;
+
             try {
-                const resposta = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
-                if (resposta.ok) {
+                const userRef = doc(db, "usuarios", cpf);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists() && userSnap.data().ativo) {
+                    usuarioAtual = userSnap.data();
+                    localStorage.setItem('usuario_terreiro', cpf);
+
                     document.getElementById('containerLogin').style.display = 'none';
                     document.getElementById('areaPrincipalApp').style.display = 'block';
                     document.getElementById('barraNavegacao').style.display = 'flex';
-                    document.getElementById('btnSairHeader').style.display = 'block'; // Exibe o Sair no topo
-                    todosItensGira = await resposta.json();
-                    await avaliarPermissoesAbas(cpf);
-                    montarCategoriasGira(); renderizarProdutosGira('Todos');
-                } else { mostrarAviso("CPF sem acesso ou suspenso.", "red"); logout(); }
-            } catch (e) { mostrarAviso("Erro ao conectar ao servidor.", "red"); }
+                    document.getElementById('btnSairHeader').style.display = 'block';
+
+                    await carregarItens();
+                    avaliarPermissoesAbas();
+                } else {
+                    mostrarAviso("CPF sem acesso ou suspenso.", "red");
+                    logout();
+                }
+            } catch (e) {
+                console.error(e);
+                mostrarAviso("Erro ao conectar ao Firebase.", "red");
+            }
         }
 
-        async function avaliarPermissoesAbas(cpf) {
-            const resAdmin = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } });
-            if (resAdmin.ok) { document.getElementById('abaBotaoEstoque').style.display = 'flex'; document.getElementById('abaBotaoPainel').style.display = 'flex'; carregarCategoriasAdmin(); carregarProdutosAdmin(); } 
-            else { document.getElementById('abaBotaoEstoque').style.display = 'none'; document.getElementById('abaBotaoPainel').style.display = 'none'; }
+        function avaliarPermissoesAbas() {
+            if (!usuarioAtual) return;
 
-            const resMaster = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': cpf } });
-            if (resMaster.ok) { document.getElementById('abaBotaoEquipe').style.display = 'flex'; usuariosDiretoria = await resMaster.json(); renderizarListaEquipe(); } 
-            else { document.getElementById('abaBotaoEquipe').style.display = 'none'; }
+            if (usuarioAtual.podeCadastrarItens || usuarioAtual.masterAdmin) {
+                document.getElementById('abaBotaoEstoque').style.display = 'flex';
+                document.getElementById('abaBotaoPainel').style.display = 'flex';
+                carregarCategoriasAdmin();
+                carregarProdutosAdmin();
+            } else {
+                document.getElementById('abaBotaoEstoque').style.display = 'none';
+                document.getElementById('abaBotaoPainel').style.display = 'none';
+            }
+
+            if (usuarioAtual.masterAdmin) {
+                document.getElementById('abaBotaoEquipe').style.display = 'flex';
+                carregarUsuariosEquipe();
+            } else {
+                document.getElementById('abaBotaoEquipe').style.display = 'none';
+            }
         }
 
         function logout() {
-            localStorage.removeItem('usuario_terreiro'); document.getElementById('userId').value = '';
-            document.getElementById('containerLogin').style.display = 'block'; document.getElementById('areaPrincipalApp').style.display = 'none'; document.getElementById('barraNavegacao').style.display = 'none';
-            document.getElementById('btnSairHeader').style.display = 'none'; // Oculta o Sair do topo
-            mudarAba('retirada', document.querySelectorAll('.nav-item')[0]);
+            localStorage.removeItem('usuario_terreiro');
+            usuarioAtual = null;
+            document.getElementById('userId').value = '';
+            document.getElementById('containerLogin').style.display = 'block';
+            document.getElementById('areaPrincipalApp').style.display = 'none';
+            document.getElementById('barraNavegacao').style.display = 'none';
+            document.getElementById('btnSairHeader').style.display = 'none';
+            mudarAba('retirada', document.getElementById('navRetirada'));
         }
 
+        async function carregarItens() {
+            const querySnapshot = await getDocs(collection(db, "itens"));
+            todosItensGira = [];
+            querySnapshot.forEach((d) => {
+                todosItensGira.push({ id: d.id, ...d.data() });
+            });
+            montarCategoriasGira();
+            renderizarProdutosGira('Todos');
+        }
+
+        // --- NAVEGAÇÃO ENTRE ABAS ---
+        document.getElementById('navRetirada').onclick = function() { mudarAba('retirada', this); };
+        document.getElementById('abaBotaoEstoque').onclick = function() { mudarAba('estoque', this); };
+        document.getElementById('abaBotaoPainel').onclick = function() { mudarAba('painel', this); };
+        document.getElementById('abaBotaoEquipe').onclick = function() { mudarAba('equipe', this); };
+
         function mudarAba(nomeAba, botaoClicado) {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('ativo')); botaoClicado.classList.add('ativo');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('ativo'));
+            if(botaoClicado) botaoClicado.classList.add('ativo');
             document.querySelectorAll('.secao-app').forEach(s => s.classList.remove('ativa'));
+
             if (nomeAba === 'retirada') { document.getElementById('abaRetirada').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Sistema Guardião"; }
             if (nomeAba === 'estoque') { document.getElementById('abaEstoque').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Almoxarifado"; }
             if (nomeAba === 'equipe') { document.getElementById('abaEquipe').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Diretoria"; }
             if (nomeAba === 'painel') { document.getElementById('abaPainel').classList.add('ativa'); document.getElementById('nomeAbaAtual').innerText = "Relatórios do Terreiro"; carregarDadosPainel(); }
         }
 
+        document.getElementById('btnSubCadastro').onclick = function() { mudarSubAbaEstoque('cadastro', this); };
+        document.getElementById('btnSubGerenciar').onclick = function() { mudarSubAbaEstoque('gerenciar', this); };
+
         function mudarSubAbaEstoque(nomeSubAba, botaoClicado) {
-            document.querySelectorAll('#abaEstoque .sub-aba-btn').forEach(b => b.classList.remove('ativa')); botaoClicado.classList.add('ativa');
+            document.querySelectorAll('#abaEstoque .sub-aba-btn').forEach(b => b.classList.remove('ativa'));
+            botaoClicado.classList.add('ativa');
             document.querySelectorAll('#abaEstoque .secao-interna').forEach(s => s.classList.remove('ativa'));
             if(nomeSubAba === 'cadastro') document.getElementById('subEstoqueCadastro').classList.add('ativa');
             if(nomeSubAba === 'gerenciar') document.getElementById('subEstoqueGerenciar').classList.add('ativa');
         }
 
+        document.getElementById('btnSubDashboard').onclick = function() { mudarSubAbaRelatorio('dashboard', this); };
+        document.getElementById('btnSubConferencia').onclick = function() { mudarSubAbaRelatorio('conferencia', this); };
+
         function mudarSubAbaRelatorio(nomeSubAba, botaoClicado) {
-            document.querySelectorAll('#abaPainel .sub-aba-btn').forEach(b => b.classList.remove('ativa', 'ativa-painel')); 
+            document.querySelectorAll('#abaPainel .sub-aba-btn').forEach(b => b.classList.remove('ativa', 'ativa-painel'));
             botaoClicado.classList.add('ativa', 'ativa-painel');
             document.querySelectorAll('#abaPainel .secao-interna').forEach(s => s.classList.remove('ativa'));
             if(nomeSubAba === 'dashboard') document.getElementById('subRelatorioDashboard').classList.add('ativa');
             if(nomeSubAba === 'conferencia') document.getElementById('subRelatorioConferencia').classList.add('ativa');
         }
 
-        async function carregarDadosPainel() {
-            const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/dashboard`, { headers: { 'x-usuario-id': cpf } });
-            if (res.ok) {
-                const dados = await res.json(); const divAlertas = document.getElementById('listaAlertasPainel'); const divConsumo = document.getElementById('listaConsumoPainel');
-                divAlertas.innerHTML = ''; divConsumo.innerHTML = '';
-                
-                if (dados.alertas.length === 0) { 
-                    divAlertas.innerHTML = '<div style="padding:15px; text-align:center; color:var(--cor-sucesso);">✅ Todo o estoque está seguro!</div>'; 
-                } else { 
-                    dados.alertas.forEach(item => { 
-                        const itemEstoque = todosItensGira.find(i => i.nome.toLowerCase().trim() === item.nome.toLowerCase().trim()) || {};
-                        const catNome = item.categoria || itemEstoque.categoria || 'Geral';
-                        divAlertas.innerHTML += `
-                            <div class="item-lista" style="background:#fff3e0;">
-                                <div>
-                                    <b>${catNome.toUpperCase()} - ${item.nome}</b><br>
-                                    <small style="color:var(--cor-perigo); font-weight:500;">Estoque: ${item.atual} (Mínimo recomendado: ${item.min})</small>
-                                </div>
-                                <span style="font-size:20px;">⚠️</span>
-                            </div>`; 
-                    }); 
-                }
-                
-                if (dados.rankingConsumo.length === 0) { 
-                    divConsumo.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">Nenhuma retirada registrada nos últimos 30 dias.</div>'; 
-                } else { 
-                    dados.rankingConsumo.forEach((item, index) => { 
-                        let medalha = ''; if (index === 0) medalha = '🥇 '; if (index === 1) medalha = '🥈 '; if (index === 2) medalha = '🥉 '; 
-                        const itemEstoque = todosItensGira.find(i => i.nome.toLowerCase().trim() === item.nome.toLowerCase().trim()) || {};
-                        const catNome = item.categoria || itemEstoque.categoria || 'Geral';
-                        divConsumo.innerHTML += `
-                            <div class="item-lista">
-                                <div>
-                                    <b>${medalha}${catNome.toUpperCase()} - ${item.nome}</b>
-                                </div>
-                                <div style="font-weight:bold; color:var(--cor-painel); display:flex; align-items:center;">${item.totalGasto} unidades</div>
-                            </div>`; 
-                    }); 
-                }
-
-                const tabelaCorpo = document.getElementById('corpoTabelaConferencia');
-                tabelaCorpo.innerHTML = '';
-                
-                const itensOrdenados = [...todosItensGira].sort((a, b) => {
-                    const catA = (a.categoria || '').toLowerCase();
-                    const catB = (b.categoria || '').toLowerCase();
-                    if (catA !== catB) return catA.localeCompare(catB);
-                    return (a.nome || '').toLowerCase().localeCompare((b.nome || '').toLowerCase());
-                });
-
-                if (itensOrdenados.length === 0) {
-                    tabelaCorpo.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#888; padding:20px;">Nenhum produto cadastrado no estoque.</td></tr>';
-                } else {
-                    itensOrdenados.forEach(item => {
-                        tabelaCorpo.innerHTML += `
-                            <tr>
-                                <td style="font-weight:600; color:#555;">${item.categoria.toUpperCase()}</td>
-                                <td>${item.nome}</td>
-                                <td style="text-align: right; font-weight: bold; color: ${item.quantidadeAtual <= item.estoqueMinimo ? 'var(--cor-perigo)' : 'var(--cor-texto)'};">
-                                    ${item.quantidadeAtual}
-                                </td>
-                            </tr>`;
-                    });
-                }
-            } else { mostrarAviso("Erro ao gerar relatórios.", "red"); }
+        // --- MÓDULO RETIRADA / GIRA ---
+        function montarCategoriasGira() {
+            const container = document.getElementById('listaCategoriasGira');
+            const categorias = ['Todos', ...new Set(todosItensGira.map(item => item.categoria))];
+            container.innerHTML = '';
+            categorias.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `btn-categoria ${cat === 'Todos' ? 'ativo' : ''}`;
+                btn.innerText = cat;
+                btn.onclick = () => {
+                    container.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('ativo'));
+                    btn.classList.add('ativo');
+                    renderizarProdutosGira(cat);
+                };
+                container.appendChild(btn);
+            });
         }
 
-        async function carregarCategoriasAdmin() {
-            const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } });
-            if (res.ok) {
-                const categories = await res.json(); const divLista = document.getElementById('listaCategoriasAdmin'); const select = document.getElementById('selectCategoriaAdmin');
-                divLista.innerHTML = ''; select.innerHTML = '<option value="">Selecione...</option>';
-                categories.forEach(cat => {
-                    divLista.innerHTML += `
-                        <div class="item-lista">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <input type="checkbox" class="chk-categoria-item" value="${cat.id}" data-nome="${cat.nome}" style="width:18px; height:18px; margin:0; cursor:pointer;">
-                                <span>${cat.nome}</span>
-                            </div>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarCategoriaAdmin('${cat.id}', '${cat.nome}')">Editar</button>
-                                <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarCategoriaAdmin('${cat.id}', '${cat.nome}')">Excluir</button>
-                            </div>
-                        </div>`;
-                    select.innerHTML += `<option value="${cat.nome}">${cat.nome}</option>`;
-                });
-                document.getElementById('chkTodosCategorias').checked = false;
+        function renderizarProdutosGira(categoriaFiltro) {
+            const container = document.getElementById('listaProdutosGira'); container.innerHTML = '';
+            itemSelecionadoGiraId = null; atualizarBotaoGira();
+            const filtrados = categoriaFiltro === 'Todos' ? todosItensGira : todosItensGira.filter(i => i.categoria === categoriaFiltro);
+            if(filtrados.length === 0) { container.innerHTML = '<p style="grid-column:span 2; text-align:center; color:#888;">Nenhum produto.</p>'; return; }
+            filtrados.forEach(item => {
+                const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`;
+                const textoCategoria = categoriaFiltro === 'Todos' ? `<span style="position: absolute; top: 6px; left: 8px; font-size: 10px; color: #b0b0b0; font-weight: bold; text-transform: uppercase;">${item.categoria}</span>` : '';
+                card.innerHTML = `${textoCategoria}<p>${item.nome}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`;
+                card.onclick = () => {
+                    document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado'));
+                    card.classList.add('selecionado');
+                    itemSelecionadoGiraId = item.id;
+                    atualizarBotaoGira();
+                };
+                container.appendChild(card);
+            });
+        }
+
+        function atualizarBotaoGira() {
+            const btn = document.getElementById('btnConfirmarGira');
+            if (itemSelecionadoGiraId) { btn.disabled = false; btn.innerText = "CONFIRMAR RETIRADA"; }
+            else { btn.disabled = true; btn.innerText = "SELECIONE UM PRODUTO"; }
+        }
+
+        document.getElementById('btnConfirmarGira').onclick = darBaixaGira;
+
+        async function darBaixaGira() {
+            const qtdInput = Number(document.getElementById('quantidadeGira').value);
+            if(!itemSelecionadoGiraId || qtdInput < 1) return;
+
+            const itemRef = doc(db, "itens", itemSelecionadoGiraId);
+            const itemSnap = await getDoc(itemRef);
+
+            if (!itemSnap.exists()) return mostrarAviso("Produto não encontrado.", "red");
+
+            const itemData = itemSnap.data();
+            if (itemData.quantidadeAtual < qtdInput) {
+                return mostrarAviso(`Estoque insuficiente! Saldo atual: ${itemData.quantidadeAtual}`, "red");
             }
+
+            const novaQtd = itemData.quantidadeAtual - qtdInput;
+            await updateDoc(itemRef, { quantidadeAtual: novaQtd });
+
+            // Registrar Histórico
+            await addDoc(collection(db, "historico_retiradas"), {
+                itemId: itemSelecionadoGiraId,
+                nome: itemData.nome,
+                categoria: itemData.categoria,
+                quantidadeRetirada: qtdInput,
+                data: Timestamp.now(),
+                usuarioCpf: usuarioAtual.id
+            });
+
+            const alerta = novaQtd <= itemData.estoqueMinimo;
+            mostrarAviso(alerta ? `⚠️ ESTOQUE CRÍTICO: restam ${novaQtd}.` : `Sucesso! Restam ${novaQtd} unidades.`, alerta ? "red" : "green");
+
+            await carregarItens();
+            renderizarProdutosGira(document.querySelector('.btn-categoria.ativo') ? document.querySelector('.btn-categoria.ativo').innerText : 'Todos');
+            if(document.getElementById('abaBotaoEstoque').style.display === 'flex') carregarProdutosAdmin();
         }
+
+        // --- MÓDULO ESTOQUE / ADMIN ---
+        async function carregarCategoriasAdmin() {
+            const querySnapshot = await getDocs(collection(db, "categorias"));
+            const divLista = document.getElementById('listaCategoriasAdmin');
+            const select = document.getElementById('selectCategoriaAdmin');
+            divLista.innerHTML = ''; select.innerHTML = '<option value="">Selecione...</option>';
+
+            querySnapshot.forEach((d) => {
+                const cat = { id: d.id, ...d.data() };
+                divLista.innerHTML += `
+                    <div class="item-lista">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <input type="checkbox" class="chk-categoria-item" value="${cat.id}" data-nome="${cat.nome}" style="width:18px; height:18px; margin:0; cursor:pointer;">
+                            <span>${cat.nome}</span>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-acao-tabela btn-edit-cat" style="background:var(--cor-admin); width:auto;" data-id="${cat.id}" data-nome="${cat.nome}">Editar</button>
+                            <button class="btn-acao-tabela btn-del-cat" style="background:var(--cor-perigo); width:auto;" data-id="${cat.id}" data-nome="${cat.nome}">Excluir</button>
+                        </div>
+                    </div>`;
+                select.innerHTML += `<option value="${cat.nome}">${cat.nome}</option>`;
+            });
+
+            document.querySelectorAll('.btn-edit-cat').forEach(b => b.onclick = () => editarCategoriaAdmin(b.dataset.id, b.dataset.nome));
+            document.querySelectorAll('.btn-del-cat').forEach(b => b.onclick = () => deletarCategoriaAdmin(b.dataset.id, b.dataset.nome));
+            document.getElementById('chkTodosCategorias').checked = false;
+        }
+
+        document.getElementById('btnCriarCat').onclick = cadastrarCategoriaAdmin;
 
         async function cadastrarCategoriaAdmin() {
-            const cpf = document.getElementById('userId').value; const nome = document.getElementById('novaCategoriaAdmin').value; if(!nome) return;
-            const res = await fetch(`${urlBase}/categorias`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome }) });
-            if(res.ok) { document.getElementById('novaCategoriaAdmin').value = ''; mostrarAviso("Categoria criada!", "green"); carregarCategoriasAdmin(); } else { mostrarAviso((await res.json()).erro, "red"); }
+            const nome = document.getElementById('novaCategoriaAdmin').value.trim();
+            if(!nome) return;
+            await addDoc(collection(db, "categorias"), { nome });
+            document.getElementById('novaCategoriaAdmin').value = '';
+            mostrarAviso("Categoria criada!", "green");
+            carregarCategoriasAdmin();
         }
 
         async function editarCategoriaAdmin(id, nomeAntigo) {
             const novoNome = prompt("Digite o novo nome para a categoria:", nomeAntigo);
             if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
-            const cpf = document.getElementById('userId').value; mostrarAviso("Renomeando e atualizando produtos...", "blue");
-            const res = await fetch(`${urlBase}/categorias/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: novoNome, nomeAntigo: nomeAntigo }) });
-            if(res.ok) { mostrarAviso("Categoria alterada!", "green"); carregarCategoriasAdmin(); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); } else { mostrarAviso((await res.json()).erro, "red"); }
+
+            await updateDoc(doc(db, "categorias", id), { nome: novoNome.trim() });
+            mostrarAviso("Categoria alterada!", "green");
+            carregarCategoriasAdmin();
+            await carregarItens();
+            carregarProdutosAdmin();
         }
 
-        async function deletarCategoriaAdmin(id, nome) { 
-            const produtosVinculados = todosItensGira.filter(prod => prod.categoria && prod.categoria.toLowerCase().trim() === nome.toLowerCase().trim());
-            const avisoMsg = produtosVinculados.length > 0 
-                ? `⚠️ ATENÇÃO MÁXIMA!\nA exclusão da categoria "${nome}" irá DELETAR DEFINITIVAMENTE todos os ${produtosVinculados.length} produtos vinculados a ela.\n\nDeseja prosseguir com a exclusão em cascata?`
-                : `Deseja excluir a categoria "${nome}"?`;
-                
-            if(!confirm(avisoMsg)) return; 
-            
-            const cpf = document.getElementById('userId').value; 
-            try {
-                if (produtosVinculados.length > 0) {
-                    mostrarAviso("Limpando produtos da categoria...", "blue");
-                    for(let prod of produtosVinculados) {
-                        await fetch(`${urlBase}/itens/${prod.id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } });
-                    }
-                }
-                mostrarAviso("Removendo categoria...", "blue");
-                await fetch(`${urlBase}/categorias/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); 
-                
-                mostrarAviso("Categoria e produtos excluídos!", "green");
-                carregarCategoriasAdmin(); 
-                const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); 
-                todosItensGira = await r.json(); 
-                montarCategoriasGira(); 
-                renderizarProdutosGira('Todos'); 
-                carregarProdutosAdmin();
-            } catch(e) {
-                mostrarAviso("Erro ao executar exclusão em cascata.", "red");
-            }
+        async function deletarCategoriaAdmin(id, nome) {
+            if(!confirm(`Deseja excluir a categoria "${nome}"?`)) return;
+            await deleteDoc(doc(db, "categorias", id));
+            mostrarAviso("Categoria excluída!", "green");
+            carregarCategoriasAdmin();
         }
 
-        function selecionarTodosCategorias(mestre) {
-            document.querySelectorAll('.chk-categoria-item').forEach(chk => chk.checked = mestre.checked);
-        }
+        document.getElementById('chkTodosCategorias').onchange = function() {
+            document.querySelectorAll('.chk-categoria-item').forEach(chk => chk.checked = this.checked);
+        };
 
-        async function excluirCategoriasEmLote() {
-            const selecionados = Array.from(document.querySelectorAll('.chk-categoria-item:checked')).map(chk => ({
-                id: chk.value,
-                nome: chk.getAttribute('data-nome')
-            }));
+        document.getElementById('btnExcluirCatLote').onclick = async function() {
+            const selecionados = Array.from(document.querySelectorAll('.chk-categoria-item:checked')).map(chk => chk.value);
             if(selecionados.length === 0) return mostrarAviso("Selecione ao menos uma categoria!", "red");
-            
-            let totalProdutosAfetados = 0;
-            selecionados.forEach(cat => {
-                if (cat.nome) {
-                    const vinculados = todosItensGira.filter(prod => prod.categoria && prod.categoria.toLowerCase().trim() === cat.nome.toLowerCase().trim());
-                    totalProdutosAfetados += vinculados.length;
-                }
+            if(!confirm(`Excluir ${selecionados.length} categorias selecionadas?`)) return;
+
+            for(let catId of selecionados) {
+                await deleteDoc(doc(db, "categorias", catId));
+            }
+            mostrarAviso("Categorias excluídas!", "green");
+            carregarCategoriasAdmin();
+        };
+
+        async function carregarProdutosAdmin() {
+            const querySnapshot = await getDocs(collection(db, "itens"));
+            const divLista = document.getElementById('listaProdutosAdmin');
+            divLista.innerHTML = '';
+
+            querySnapshot.forEach((d) => {
+                const prod = { id: d.id, ...d.data() };
+                divLista.innerHTML += `
+                    <div class="item-lista">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <input type="checkbox" class="chk-produto-item" value="${prod.id}" style="width:18px; height:18px; margin:0; cursor:pointer;">
+                            <div><b>${prod.nome}</b><br><small style="color:#777;">${prod.categoria} | Qtd: ${prod.quantidadeAtual}</small></div>
+                        </div>
+                        <div style="display:flex; gap:5px;">
+                            <button class="btn-acao-tabela btn-edit-prod" style="background:var(--cor-admin); width:auto;" data-id="${prod.id}" data-nome="${prod.nome}">Editar</button>
+                            <button class="btn-acao-tabela btn-del-prod" style="background:var(--cor-perigo); width:auto;" data-id="${prod.id}">Excluir</button>
+                        </div>
+                    </div>`;
             });
 
-            const confMsg = `🚨 CRÍTICO:\nVocê está prestes a excluir ${selecionados.length} categorias.\nIsso removerá AUTOMATICAMENTE todos os ${totalProdutosAfetados} produtos vinculados de forma definitiva.\n\nDeseja continuar?`;
-            if(!confirm(confMsg)) return;
-            
-            const cpf = document.getElementById('userId').value;
-            mostrarAviso("Executando limpeza em cascata...", "blue");
-            try {
-                for(let cat of selecionados) {
-                    if (cat.nome) {
-                        const produtosVinculados = todosItensGira.filter(prod => prod.categoria && prod.categoria.toLowerCase().trim() === cat.nome.toLowerCase().trim());
-                        for(let prod of produtosVinculados) {
-                            await fetch(`${urlBase}/itens/${prod.id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } });
-                        }
-                    }
-                    await fetch(`${urlBase}/categorias/${cat.id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } });
-                }
-                mostrarAviso("Exclusão em cascata concluída!", "green");
-                carregarCategoriasAdmin();
-                const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); 
-                todosItensGira = await r.json(); 
-                montarCategoriasGira(); 
-                renderizarProdutosGira('Todos'); 
-                carregarProdutosAdmin();
-            } catch(e) { mostrarAviso("Erro ao processar a exclusão em lote.", "red"); }
+            document.querySelectorAll('.btn-edit-prod').forEach(b => b.onclick = () => editarProdutoAdmin(b.dataset.id, b.dataset.nome));
+            document.querySelectorAll('.btn-del-prod').forEach(b => b.onclick = () => deletarProdutoAdmin(b.dataset.id));
+            document.getElementById('chkTodosProdutos').checked = false;
         }
 
-        function baixarModeloExcel() { const dadosModelo = [["Nome", "Categoria", "Quantidade", "EstoqueMinimo"], ["Vela Branca de 7 Dias", "Velas", 50, 10], ["Alfazema Líquida", "Bebidas", 12, 4], ["Fumo de Rolo", "Fumos", 15, 5]]; const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dadosModelo); ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}]; XLSX.utils.book_append_sheet(wb, ws, "Modelo Guardião"); XLSX.writeFile(wb, "modelo_cadastro_estoque.xlsx"); mostrarAviso("Modelo baixado!", "green"); }
-        
-        function analisarPlanilhaLote() { 
-            const input = document.getElementById('ficheiroPlanilha'); if (!input.files.length) return; 
-            const file = input.files[0]; const reader = new FileReader(); 
-            reader.onload = function(e) { 
-                const data = new Uint8Array(e.target.result); 
-                const workbook = XLSX.read(data, {type: 'array'}); 
-                const primeiraAba = workbook.Sheets[workbook.SheetNames[0]]; 
-                const linhas = XLSX.utils.sheet_to_json(primeiraAba, {header: 1}); 
-                itensParaImportarLote = []; 
-                const divLista = document.getElementById('listaConflitosLote'); divLista.innerHTML = ''; 
-                let totalNovos = 0; let totalDuplicados = 0; 
-                for (let i = 0; i < linhas.length; i++) { 
-                    const colunas = linhas[i]; if (!colunas || colunas.length < 3) continue; 
-                    if (i === 0 && String(colunas[0]).toLowerCase().includes('nome')) continue; 
-                    const nome = String(colunas[0]).trim(); const categoria = String(colunas[1]).trim(); 
-                    const quantidade = Number(colunas[2]); const estoqueMin = colunas[3] ? Number(colunas[3]) : 5; 
-                    if (!nome || !categoria || isNaN(quantidade)) continue; 
-                    const correspondencia = todosItensGira.find(item => item.nome.toLowerCase() === nome.toLowerCase() && item.categoria.toLowerCase() === categoria.toLowerCase()); 
-                    const itemObj = { nome, categoria, quantidade: quantity = quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null }; 
-                    if (correspondencia) { 
-                        totalDuplicados++; itemObj.existe = true; itemObj.idExistente = correspondencia.id; 
-                        divLista.innerHTML += `<div class="conflito-item"><div><b>${nome}</b> (${categoria}) <br> <small>Planilha: +${quantidade} | Atual: ${correspondencia.quantidadeAtual}</small></div><label style="margin:0; display:inline-flex; gap:5px;"><input type="checkbox" id="checkLote-${itensParaImportarLote.length}" checked> Somar</label></div>`; 
-                    } else { totalNovos++; } 
-                    itensParaImportarLote.push(itemObj); 
-                } 
-                document.getElementById('resumoLoteTexto').innerText = `Planilha lida: ${totalNovos} novos e ${totalDuplicados} duplicados.`; 
-                document.getElementById('painelLotePreview').style.display = 'block'; 
-            }; 
-            reader.readAsArrayBuffer(file); 
+        document.getElementById('btnSalvarProdutoIndiv').onclick = cadastrarProdutoAdmin;
+
+        async function cadastrarProdutoAdmin() {
+            const payload = {
+                categoria: document.getElementById('selectCategoriaAdmin').value,
+                nome: document.getElementById('nomeProdutoAdmin').value.trim(),
+                quantidadeAtual: Number(document.getElementById('qtdInicialAdmin').value),
+                estoqueMinimo: Number(document.getElementById('estoqueMinAdmin').value)
+            };
+            if(!payload.categoria || !payload.nome) return mostrarAviso("Preencha categoria e nome!", "red");
+
+            await addDoc(collection(db, "itens"), payload);
+            document.getElementById('nomeProdutoAdmin').value = '';
+            mostrarAviso("Produto cadastrado!", "green");
+            carregarProdutosAdmin();
+            await carregarItens();
         }
 
-        async function processarImportacaoLoteFinal() { 
-            const cpf = document.getElementById('userId').value; mostrarAviso("Importando dados...", "blue"); 
-            let categoriesExistentes = []; 
-            try { 
-                const resCat = await fetch(`${urlBase}/categorias`, { headers: { 'x-usuario-id': cpf } }); 
-                if (resCat.ok) { const cats = await resCat.json(); categoriesExistentes = cats.map(c => c.nome.toLowerCase().trim()); } 
-            } catch(e) { console.error(e); } 
-            for (let i = 0; i < itensParaImportarLote.length; i++) { 
-                const item = itensParaImportarLote[i]; const catNomeNormalizado = item.categoria.toLowerCase().trim(); 
-                if (!categoriesExistentes.includes(catNomeNormalizado)) { 
-                    try { 
-                        await fetch(`${urlBase}/categorias`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: item.categoria }) }); 
-                        categoriesExistentes.push(catNomeNormalizado); 
-                    } catch(e) { console.error(e); } 
-                } 
-                if (item.existe) { 
-                    const checkbox = document.getElementById(`checkLote-${i}`); 
-                    if (checkbox && checkbox.checked) { 
-                        await fetch(`${urlBase}/itens/${item.idExistente}/abastecer`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ quantidadeAdicionada: item.quantidade }) }); 
-                    } 
-                } else { 
-                    await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ nome: item.nome, categoria: item.categoria, quantidadeAtual: item.quantidade, estoqueMinimo: item.estoqueMinimo }) }); 
-                } 
-            } 
-            mostrarAviso("Importação concluída!", "green"); 
-            document.getElementById('painelLotePreview').style.display = 'none'; 
-            document.getElementById('ficheiroPlanilha').value = ''; 
-            const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); 
-            todosItensGira = await r.json(); 
-            montarCategoriasGira(); renderizarProdutosGira('Todos'); carregarProdutosAdmin(); carregarCategoriasAdmin(); 
+        async function editarProdutoAdmin(id, nomeAntigo) {
+            const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo);
+            if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return;
+
+            await updateDoc(doc(db, "itens", id), { nome: novoNome.trim() });
+            mostrarAviso("Produto alterado!", "green");
+            carregarProdutosAdmin();
+            await carregarItens();
         }
 
-        function montarCategoriasGira() { 
-            const container = document.getElementById('listaCategoriasGira'); 
-            const categorias = ['Todos', ...new Set(todosItensGira.map(item => item.categoria))]; 
-            container.innerHTML = ''; 
-            categorias.forEach(cat => { 
-                const btn = document.createElement('button'); 
-                btn.className = `btn-categoria ${cat === 'Todos' ? 'ativo' : ''}`; 
-                btn.innerText = cat; 
-                btn.onclick = () => { container.querySelectorAll('.btn-categoria').forEach(b => b.classList.remove('ativo')); btn.classList.add('ativo'); renderizarProdutosGira(cat); }; 
-                container.appendChild(btn); 
-            }); 
-        }
-        
-        function renderizarProdutosGira(categoriaFiltro) { 
-            const container = document.getElementById('listaProdutosGira'); container.innerHTML = ''; 
-            itemSelecionadoGiraId = null; atualizarBotaoGira(); 
-            const filtrados = categoriaFiltro === 'Todos' ? todosItensGira : todosItensGira.filter(i => i.categoria === categoriaFiltro); 
-            if(filtrados.length === 0) { container.innerHTML = '<p style="grid-column:span 2; text-align:center; color:#888;">Nenhum produto.</p>'; return; } 
-            filtrados.forEach(item => { 
-                const card = document.createElement('div'); card.className = 'card-produto'; card.id = `gira-card-${item.id}`; 
-                const textoCategoria = categoriaFiltro === 'Todos' ? `<span style="position: absolute; top: 6px; left: 8px; font-size: 10px; color: #b0b0b0; font-weight: bold; text-transform: uppercase; letter-spacing: 0.3px;">${item.categoria}</span>` : ''; 
-                card.innerHTML = `${textoCategoria}<p>${item.nome}</p><small style="color:#777; font-size:12px; margin-top:4px;">Qtd: ${item.quantidadeAtual}</small>`; 
-                card.onclick = () => { document.querySelectorAll('.card-produto').forEach(c => c.classList.remove('selecionado')); card.classList.add('selecionado'); itemSelecionadoGiraId = item.id; atualizarBotaoGira(); }; 
-                container.appendChild(card); 
-            }); 
+        async function deletarProdutoAdmin(id) {
+            if(!confirm("Excluir produto?")) return;
+            await deleteDoc(doc(db, "itens", id));
+            carregarProdutosAdmin();
+            await carregarItens();
         }
 
-        function atualizarBotaoGira() { const btn = document.getElementById('btnConfirmarGira'); if (itemSelecionadoGiraId) { btn.disabled = false; btn.innerText = "CONFIRMAR RETIRADA"; } else { btn.disabled = true; btn.innerText = "SELECIONE UM PRODUTO"; } }
-        
-        async function darBaixaGira() { 
-            const cpf = document.getElementById('userId').value; const qtdInput = document.getElementById('quantidadeGira').value; 
-            if(!itemSelecionadoGiraId || qtdInput < 1) return; 
-            const res = await fetch(`${urlBase}/itens/${itemSelecionadoGiraId}/baixa`, { 
-                method: 'PUT', 
-                headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, 
-                body: JSON.stringify({ quantidadeRetirada: Number(qtdInput) }) 
-            }); 
-            const dados = await res.json(); 
-            if (res.ok) { 
-                mostrarAviso(dados.alerta ? `⚠️ ESTOQUE CRÍTICO: restam ${dados.restante}.` : `Sucesso! Restam ${dados.restante} unidades.`, dados.alerta ? "red" : "green"); 
-                const resposta = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await resposta.json(); 
-                renderizarProdutosGira(document.querySelector('.btn-categoria.ativo').innerText); 
-                if(document.getElementById('abaBotaoEstoque').style.display === 'flex') carregarProdutosAdmin(); 
-            } else { mostrarAviso(dados.erro, "red"); } 
-        }
-        
-        async function carregarProdutosAdmin() {
-            const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } });
-            if (res.ok) {
-                const produtos = await res.json(); const divLista = document.getElementById('listaProdutosAdmin'); divLista.innerHTML = '';
-                produtos.forEach(prod => {
-                    divLista.innerHTML += `
-                        <div class="item-lista">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <input type="checkbox" class="chk-produto-item" value="${prod.id}" style="width:18px; height:18px; margin:0; cursor:pointer;">
-                                <div><b>${prod.nome}</b><br><small style="color:#777;">${prod.categoria} | Qtd: ${prod.quantidadeAtual}</small></div>
-                            </div>
-                            <div style="display:flex; gap:5px;">
-                                <button class="btn-acao-tabela" style="background:var(--cor-admin); width:auto;" onclick="editarProdutoAdmin('${prod.id}', '${prod.nome}')">Editar</button>
-                                <button class="btn-acao-tabela" style="background:var(--cor-perigo); width:auto;" onclick="deletarProdutoAdmin('${prod.id}')">Excluir</button>
-                            </div>
-                        </div>`;
-                });
-                document.getElementById('chkTodosProdutos').checked = false;
-            }
-        }
+        document.getElementById('chkTodosProdutos').onchange = function() {
+            document.querySelectorAll('.chk-produto-item').forEach(chk => chk.checked = this.checked);
+        };
 
-        async function editarProdutoAdmin(id, nomeAntigo) { const novoNome = prompt("Digite o novo nome para o produto:", nomeAntigo); if (!novoNome || novoNome.trim() === "" || novoNome === nomeAntigo) return; const cpf = document.getElementById('userId').value; const res = await fetch(`${urlBase}/itens/${id}/editar`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify({ novoNome }) }); if (res.ok) { mostrarAviso("Nome do produto updated!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
-        async function cadastrarProdutoAdmin() { const cpf = document.getElementById('userId').value; const payload = { categoria: document.getElementById('selectCategoriaAdmin').value, nome: document.getElementById('nomeProdutoAdmin').value, quantidadeAtual: document.getElementById('qtdInicialAdmin').value, estoqueMinimo: document.getElementById('estoqueMinAdmin').value }; if(!payload.categoria || !payload.nome) return mostrarAviso("Preencha!", "red"); const res = await fetch(`${urlBase}/itens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': cpf }, body: JSON.stringify(payload) }); if (res.ok) { document.getElementById('nomeProdutoAdmin').value = ''; mostrarAviso("Produto cadastrado!", "green"); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); } else { mostrarAviso((await res.json()).erro, "red"); } }
-        async function deletarProdutoAdmin(id) { if(!confirm("Excluir?")) return; const cpf = document.getElementById('userId').value; await fetch(`${urlBase}/itens/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); carregarProdutosAdmin(); const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos'); }
-
-        function selecionarTodosProdutos(mestre) { document.querySelectorAll('.chk-produto-item').forEach(chk => chk.checked = mestre.checked); }
-        
-        async function excluirProdutosEmLote() {
+        document.getElementById('btnExcluirProdLote').onclick = async function() {
             const selecionados = Array.from(document.querySelectorAll('.chk-produto-item:checked')).map(chk => chk.value);
             if(selecionados.length === 0) return mostrarAviso("Selecione ao menos um produto!", "red");
-            if(!confirm(`🚨 ALERTA MÁXIMO:\nDeseja mesmo excluir DEFINITIVAMENTE os ${selecionados.length} produtos selecionados do sistema?`)) return;
-            const cpf = document.getElementById('userId').value; mostrarAviso("Excluindo produtos...", "blue");
-            try {
-                for(let id of selecionados) { await fetch(`${urlBase}/itens/${id}`, { method: 'DELETE', headers: { 'x-usuario-id': cpf } }); }
-                mostrarAviso("Produtos excluídos com sucesso!", "green"); carregarProdutosAdmin();
-                const r = await fetch(`${urlBase}/itens`, { headers: { 'x-usuario-id': cpf } }); todosItensGira = await r.json(); montarCategoriasGira(); renderizarProdutosGira('Todos');
-            } catch(e) { mostrarAviso("Erro ao processar a exclusão.", "red"); }
+            if(!confirm(`Excluir ${selecionados.length} produtos?`)) return;
+
+            for(let id of selecionados) {
+                await deleteDoc(doc(db, "itens", id));
+            }
+            mostrarAviso("Produtos excluídos!", "green");
+            carregarProdutosAdmin();
+            await carregarItens();
+        };
+
+        // --- IMPORTAÇÃO EXCEL ---
+        document.getElementById('btnBaixarModelo').onclick = function() {
+            const dadosModelo = [["Nome", "Categoria", "Quantidade", "EstoqueMinimo"], ["Vela Branca de 7 Dias", "Velas", 50, 10], ["Alfazema Líquida", "Bebidas", 12, 4], ["Fumo de Rolo", "Fumos", 15, 5]];
+            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.aoa_to_sheet(dadosModelo);
+            ws['!cols'] = [{wch: 25}, {wch: 15}, {wch: 12}, {wch: 15}];
+            XLSX.utils.book_append_sheet(wb, ws, "Modelo Guardião");
+            XLSX.writeFile(wb, "modelo_cadastro_estoque.xlsx");
+            mostrarAviso("Modelo baixado!", "green");
+        };
+
+        document.getElementById('ficheiroPlanilha').onchange = function() {
+            const file = this.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+                const linhas = XLSX.utils.sheet_to_json(primeiraAba, {header: 1});
+                itensParaImportarLote = [];
+                const divLista = document.getElementById('listaConflitosLote'); divLista.innerHTML = '';
+                let totalNovos = 0; let totalDuplicados = 0;
+
+                for (let i = 0; i < linhas.length; i++) {
+                    const colunas = linhas[i]; if (!colunas || colunas.length < 3) continue;
+                    if (i === 0 && String(colunas[0]).toLowerCase().includes('nome')) continue;
+                    const nome = String(colunas[0]).trim(); const categoria = String(colunas[1]).trim();
+                    const quantidade = Number(colunas[2]); const estoqueMin = colunas[3] ? Number(colunas[3]) : 5;
+                    if (!nome || !categoria || isNaN(quantidade)) continue;
+
+                    const correspondencia = todosItensGira.find(item => item.nome.toLowerCase() === nome.toLowerCase() && item.categoria.toLowerCase() === categoria.toLowerCase());
+                    const itemObj = { nome, categoria, quantidade, estoqueMinimo: estoqueMin, existe: false, idExistente: null };
+
+                    if (correspondencia) {
+                        totalDuplicados++; itemObj.existe = true; itemObj.idExistente = correspondencia.id;
+                        divLista.innerHTML += `<div class="conflito-item"><div><b>${nome}</b> (${categoria}) <br> <small>Planilha: +${quantidade} | Atual: ${correspondencia.quantidadeAtual}</small></div><label style="margin:0; display:inline-flex; gap:5px;"><input type="checkbox" id="checkLote-${itensParaImportarLote.length}" checked> Somar</label></div>`;
+                    } else { totalNovos++; }
+                    itensParaImportarLote.push(itemObj);
+                }
+                document.getElementById('resumoLoteTexto').innerText = `Planilha lida: ${totalNovos} novos e ${totalDuplicados} duplicados.`;
+                document.getElementById('painelLotePreview').style.display = 'block';
+            };
+            reader.readAsArrayBuffer(file);
+        };
+
+        document.getElementById('btnConfirmarLote').onclick = async function() {
+            mostrarAviso("Importando dados...", "blue");
+            for (let i = 0; i < itensParaImportarLote.length; i++) {
+                const item = itensParaImportarLote[i];
+                if (item.existe) {
+                    const checkbox = document.getElementById(`checkLote-${i}`);
+                    if (checkbox && checkbox.checked) {
+                        const itemRef = doc(db, "itens", item.idExistente);
+                        await updateDoc(itemRef, { quantidadeAtual: increment(item.quantidade) });
+                    }
+                } else {
+                    await addDoc(collection(db, "itens"), {
+                        nome: item.nome, categoria: item.categoria, quantidadeAtual: item.quantidade, estoqueMinimo: item.estoqueMinimo
+                    });
+                }
+            }
+            mostrarAviso("Importação concluída!", "green");
+            document.getElementById('painelLotePreview').style.display = 'none';
+            document.getElementById('ficheiroPlanilha').value = '';
+            await carregarItens();
+            carregarProdutosAdmin(); carregarCategoriasAdmin();
+        };
+
+        // --- MÓDULO EQUIPE / DIRETORIA ---
+        async function carregarUsuariosEquipe() {
+            const querySnapshot = await getDocs(collection(db, "usuarios"));
+            usuariosDiretoria = [];
+            querySnapshot.forEach((d) => {
+                usuariosDiretoria.push({ id: d.id, ...d.data() });
+            });
+            renderizarListaEquipe();
         }
 
-        function renderizarListaEquipe() { const divLista = document.getElementById('listaUsuariosEquipe'); divLista.innerHTML = ''; usuariosDiretoria.forEach(user => { let badges = user.masterAdmin ? `<span class="badge" style="background:var(--cor-master)">MASTER</span>` : ''; if(user.podeCadastrarItens) badges += `<span class="badge" style="background:var(--cor-admin)">ALMOXARIFE</span>`; if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`; divLista.innerHTML += `<div class="item-lista"><div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div><div style="display:flex; flex-direction:column; gap:4px; min-width:80px;"><button class="btn-acao-tabela" style="background:var(--cor-admin);" onclick="prepararEdicaoEquipe('${user.id}')">Editar</button><button class="btn-acao-tabela" style="background:#555;" onclick="alterarStatusEquipe('${user.id}', ${!user.ativo})">${user.ativo ? 'Bloquear' : 'Liberar'}</button><button class="btn-acao-tabela" style="background:var(--cor-perigo);" onclick="deletarUsuarioEquipe('${user.id}')">Excluir</button></div></div>`; }); }
-        function prepararEdicaoEquipe(cpf) { const u = usuariosDiretoria.find(user => user.id === cpf); if(!u) return; modoEdicaoEquipe = true; document.getElementById('tituloFormEquipe').innerText = "✏️ Editar Integrante"; const c = document.getElementById('equipeCpf'); c.value = u.id; c.disabled = true; document.getElementById('equipeNome').value = u.nome; document.getElementById('equipeEmail').value = u.email || ''; document.getElementById('checkAtivo').checked = u.ativo; document.getElementById('checkRetirada').checked = u.podeDarBaixa; document.getElementById('checkAdmin').checked = u.podeCadastrarItens; document.getElementById('checkMaster').checked = u.masterAdmin; document.getElementById('btnSalvarEquipe').innerText = "Salvar Alterações"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'block'; }
-        function cancelarEdicaoEquipe() { modoEdicaoEquipe = false; document.getElementById('tituloFormEquipe').innerText = "👤 Novo Integrante"; const c = document.getElementById('equipeCpf'); c.value = ''; c.disabled = false; document.getElementById('equipeNome').value = ''; document.getElementById('equipeEmail').value = ''; document.getElementById('checkAtivo').checked = true; document.getElementById('checkRetirada').checked = true; document.getElementById('checkAdmin').checked = false; document.getElementById('checkMaster').checked = false; document.getElementById('btnSalvarEquipe').innerText = "Cadastrar"; document.getElementById('btnCancelarEdicaoEquipe').style.display = 'none'; }
-        
-        async function salvarUsuarioEquipe() { 
-            const masterId = document.getElementById('userId').value; 
-            const cpf = document.getElementById('equipeCpf').value; 
-            
-            if (cpf.length !== 11) {
-                mostrarAviso("O CPF deve conter exatamente 11 números!", "red");
-                return;
+        function renderizarListaEquipe() {
+            const divLista = document.getElementById('listaUsuariosEquipe'); divLista.innerHTML = '';
+            usuariosDiretoria.forEach(user => {
+                let badges = user.masterAdmin ? `<span class="badge" style="background:var(--cor-master)">MASTER</span>` : '';
+                if(user.podeCadastrarItens) badges += `<span class="badge" style="background:var(--cor-admin)">ALMOXARIFE</span>`;
+                if(!user.ativo) badges += `<span class="badge" style="background:var(--cor-perigo)">BLOQUEADO</span>`;
+
+                divLista.innerHTML += `
+                    <div class="item-lista">
+                        <div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div>
+                        <div style="display:flex; flex-direction:column; gap:4px; min-width:80px;">
+                            <button class="btn-acao-tabela btn-edit-user" style="background:var(--cor-admin);" data-cpf="${user.id}">Editar</button>
+                            <button class="btn-acao-tabela btn-status-user" style="background:#555;" data-cpf="${user.id}" data-ativo="${!user.ativo}">${user.ativo ? 'Bloquear' : 'Liberar'}</button>
+                            <button class="btn-acao-tabela btn-del-user" style="background:var(--cor-perigo);" data-cpf="${user.id}">Excluir</button>
+                        </div>
+                    </div>`;
+            });
+
+            document.querySelectorAll('.btn-edit-user').forEach(b => b.onclick = () => prepararEdicaoEquipe(b.dataset.cpf));
+            document.querySelectorAll('.btn-status-user').forEach(b => b.onclick = () => alterarStatusEquipe(b.dataset.cpf, b.dataset.ativo === 'true'));
+            document.querySelectorAll('.btn-del-user').forEach(b => b.onclick = () => deletarUsuarioEquipe(b.dataset.cpf));
+        }
+
+        function prepararEdicaoEquipe(cpf) {
+            const u = usuariosDiretoria.find(user => user.id === cpf); if(!u) return;
+            modoEdicaoEquipe = true;
+            document.getElementById('tituloFormEquipe').innerText = "✏️ Editar Integrante";
+            const c = document.getElementById('equipeCpf'); c.value = u.id; c.disabled = true;
+            document.getElementById('equipeNome').value = u.nome;
+            document.getElementById('equipeEmail').value = u.email || '';
+            document.getElementById('checkAtivo').checked = u.ativo;
+            document.getElementById('checkRetirada').checked = u.podeDarBaixa;
+            document.getElementById('checkAdmin').checked = u.podeCadastrarItens;
+            document.getElementById('checkMaster').checked = u.masterAdmin;
+            document.getElementById('btnSalvarEquipe').innerText = "Salvar Alterações";
+            document.getElementById('btnCancelarEdicaoEquipe').style.display = 'block';
+        }
+
+        document.getElementById('btnCancelarEdicaoEquipe').onclick = cancelarEdicaoEquipe;
+
+        function cancelarEdicaoEquipe() {
+            modoEdicaoEquipe = false;
+            document.getElementById('tituloFormEquipe').innerText = "👤 Novo Integrante";
+            const c = document.getElementById('equipeCpf'); c.value = ''; c.disabled = false;
+            document.getElementById('equipeNome').value = ''; document.getElementById('equipeEmail').value = '';
+            document.getElementById('checkAtivo').checked = true; document.getElementById('checkRetirada').checked = true;
+            document.getElementById('checkAdmin').checked = false; document.getElementById('checkMaster').checked = false;
+            document.getElementById('btnSalvarEquipe').innerText = "Cadastrar";
+            document.getElementById('btnCancelarEdicaoEquipe').style.display = 'none';
+        }
+
+        document.getElementById('btnSalvarEquipe').onclick = async function() {
+            const cpf = document.getElementById('equipeCpf').value.trim();
+            if (cpf.length !== 11) return mostrarAviso("O CPF deve conter exatamente 11 números!", "red");
+
+            const payload = {
+                id: cpf,
+                nome: document.getElementById('equipeNome').value.trim(),
+                email: document.getElementById('equipeEmail').value.trim(),
+                ativo: document.getElementById('checkAtivo').checked,
+                podeDarBaixa: document.getElementById('checkRetirada').checked,
+                podeCadastrarItens: document.getElementById('checkAdmin').checked,
+                masterAdmin: document.getElementById('checkMaster').checked
+            };
+            if(!payload.id || !payload.nome) return mostrarAviso("Preencha CPF e Nome!", "red");
+
+            await setDoc(doc(db, "usuarios", cpf), payload, { merge: true });
+            mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green");
+            cancelarEdicaoEquipe();
+            await carregarUsuariosEquipe();
+        };
+
+        async function alterarStatusEquipe(cpf, status) {
+            await updateDoc(doc(db, "usuarios", cpf), { ativo: status });
+            await carregarUsuariosEquipe();
+        }
+
+        async function deletarUsuarioEquipe(cpf) {
+            if(!confirm("Excluir usuário?")) return;
+            await deleteDoc(doc(db, "usuarios", cpf));
+            await carregarUsuariosEquipe();
+        }
+
+        // --- RELATÓRIOS / PAINEL ---
+        async function carregarDadosPainel() {
+            const divAlertas = document.getElementById('listaAlertasPainel');
+            const divConsumo = document.getElementById('listaConsumoPainel');
+            divAlertas.innerHTML = ''; divConsumo.innerHTML = '';
+
+            // Alertas
+            const alertas = todosItensGira.filter(i => i.quantidadeAtual <= i.estoqueMinimo);
+            if (alertas.length === 0) {
+                divAlertas.innerHTML = '<div style="padding:15px; text-align:center; color:var(--cor-sucesso);">✅ Todo o estoque está seguro!</div>';
+            } else {
+                alertas.forEach(item => {
+                    divAlertas.innerHTML += `
+                        <div class="item-lista" style="background:#fff3e0;">
+                            <div>
+                                <b>${item.categoria.toUpperCase()} - ${item.nome}</b><br>
+                                <small style="color:var(--cor-perigo); font-weight:500;">Estoque: ${item.quantidadeAtual} (Mínimo: ${item.estoqueMinimo})</small>
+                            </div>
+                            <span style="font-size:20px;">⚠️</span>
+                        </div>`;
+                });
             }
 
-            const payload = { cpf: cpf, nome: document.getElementById('equipeNome').value, email: document.getElementById('equipeEmail').value, ativo: document.getElementById('checkAtivo').checked, podeDarBaixa: document.getElementById('checkRetirada').checked, podeCadastrarItens: document.getElementById('checkAdmin').checked, masterAdmin: document.getElementById('checkMaster').checked }; 
-            if(!payload.cpf || !payload.nome) return; 
-            
-            const url = modoEdicaoEquipe ? `${urlBase}/usuarios/${cpf}` : `${urlBase}/usuarios`; 
-            const res = await fetch(url, { method: modoEdicaoEquipe ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify(payload) }); 
-            if (res.ok) { mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green"); cancelarEdicaoEquipe(); const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } 
+            // Consumo (Histórico)
+            const querySnapshot = await getDocs(collection(db, "historico_retiradas"));
+            const contagem = {};
+            querySnapshot.forEach(d => {
+                const reg = d.data();
+                const chave = `${reg.categoria.toUpperCase()} - ${reg.nome}`;
+                contagem[chave] = (contagem[chave] || 0) + reg.quantidadeRetirada;
+            });
+
+            const ranking = Object.keys(contagem).map(k => ({ nome: k, total: contagem[k] })).sort((a, b) => b.total - a.total);
+
+            if (ranking.length === 0) {
+                divConsumo.innerHTML = '<div style="padding:15px; text-align:center; color:#888;">Nenhuma retirada registrada.</div>';
+            } else {
+                ranking.forEach((item, index) => {
+                    let medalha = ''; if (index === 0) medalha = '🥇 '; if (index === 1) medalha = '🥈 '; if (index === 2) medalha = '🥉 ';
+                    divConsumo.innerHTML += `
+                        <div class="item-lista">
+                            <div><b>${medalha}${item.nome}</b></div>
+                            <div style="font-weight:bold; color:var(--cor-painel);">${item.total} unidades</div>
+                        </div>`;
+                });
+            }
+
+            // Ficha de Conferência
+            const tabelaCorpo = document.getElementById('corpoTabelaConferencia');
+            tabelaCorpo.innerHTML = '';
+            const itensOrdenados = [...todosItensGira].sort((a, b) => (a.categoria || '').localeCompare(b.categoria || ''));
+
+            if (itensOrdenados.length === 0) {
+                tabelaCorpo.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#888; padding:20px;">Nenhum produto cadastrado.</td></tr>';
+            } else {
+                itensOrdenados.forEach(item => {
+                    tabelaCorpo.innerHTML += `
+                        <tr>
+                            <td style="font-weight:600; color:#555;">${item.categoria.toUpperCase()}</td>
+                            <td>${item.nome}</td>
+                            <td style="text-align: right; font-weight: bold; color: ${item.quantidadeAtual <= item.estoqueMinimo ? 'var(--cor-perigo)' : 'var(--cor-texto)'};">
+                                ${item.quantidadeAtual}
+                            </td>
+                        </tr>`;
+                });
+            }
         }
-        
-        async function alterarStatusEquipe(cpf, status) { const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'x-usuario-id': masterId }, body: JSON.stringify({ ativo: status }) }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
-        async function deletarUsuarioEquipe(cpf) { if(!confirm("Excluir?")) return; const masterId = document.getElementById('userId').value; const res = await fetch(`${urlBase}/usuarios/${cpf}`, { method: 'DELETE', headers: { 'x-usuario-id': masterId } }); if(res.ok) { const r = await fetch(`${urlBase}/usuarios`, { headers: { 'x-usuario-id': masterId } }); usuariosDiretoria = await r.json(); renderizarListaEquipe(); } else { mostrarAviso((await res.json()).erro, "red"); } }
-        function mostrarAviso(texto, cor) { const div = document.getElementById('mensagem'); div.innerHTML = texto; div.style.display = 'block'; if(cor === "red") { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; } else if(cor === "green") { div.style.backgroundColor = "#e8f5e9"; div.style.color = "#2e7d32"; } else { div.style.backgroundColor = "#e3f2fd"; div.style.color = "#1565c0"; } setTimeout(() => div.style.display = 'none', 3500); }
+
+        function mostrarAviso(texto, cor) {
+            const div = document.getElementById('mensagem');
+            div.innerHTML = texto; div.style.display = 'block';
+            if(cor === "red") { div.style.backgroundColor = "#ffebee"; div.style.color = "#c62828"; }
+            else if(cor === "green") { div.style.backgroundColor = "#e8f5e9"; div.style.color = "#2e7d32"; }
+            else { div.style.backgroundColor = "#e3f2fd"; div.style.color = "#1565c0"; }
+            setTimeout(() => div.style.display = 'none', 3500);
+        }
     </script>
 </body>
 </html>
