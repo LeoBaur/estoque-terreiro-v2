@@ -286,7 +286,7 @@
                 const userSnap = await getDoc(userRef);
 
                 if (userSnap.exists() && userSnap.data().ativo) {
-                    usuarioAtual = userSnap.data();
+                    usuarioAtual = { id: userSnap.id, ...userSnap.data() };
                     localStorage.setItem('usuario_terreiro', cpf);
 
                     document.getElementById('containerLogin').style.display = 'none';
@@ -449,14 +449,14 @@
             const novaQtd = itemData.quantidadeAtual - qtdInput;
             await updateDoc(itemRef, { quantidadeAtual: novaQtd });
 
-            // Registrar Histórico
-            await addDoc(collection(db, "historico_retiradas"), {
+            // Registrar no Histórico existente no Firestore
+            await addDoc(collection(db, "historico"), {
                 itemId: itemSelecionadoGiraId,
                 nome: itemData.nome,
                 categoria: itemData.categoria,
                 quantidadeRetirada: qtdInput,
                 data: Timestamp.now(),
-                usuarioCpf: usuarioAtual.id
+                usuarioCpf: usuarioAtual ? (usuarioAtual.cpf || usuarioAtual.id) : localStorage.getItem('usuario_terreiro')
             });
 
             const alerta = novaQtd <= itemData.estoqueMinimo;
@@ -703,7 +703,7 @@
 
                 divLista.innerHTML += `
                     <div class="item-lista">
-                        <div><b>${user.nome}</b><br><small>CPF: ${user.id}</small><br>${badges}</div>
+                        <div><b>${user.nome}</b><br><small>CPF: ${user.cpf || user.id}</small><br>${badges}</div>
                         <div style="display:flex; flex-direction:column; gap:4px; min-width:80px;">
                             <button class="btn-acao-tabela btn-edit-user" style="background:var(--cor-admin);" data-cpf="${user.id}">Editar</button>
                             <button class="btn-acao-tabela btn-status-user" style="background:#555;" data-cpf="${user.id}" data-ativo="${!user.ativo}">${user.ativo ? 'Bloquear' : 'Liberar'}</button>
@@ -721,7 +721,7 @@
             const u = usuariosDiretoria.find(user => user.id === cpf); if(!u) return;
             modoEdicaoEquipe = true;
             document.getElementById('tituloFormEquipe').innerText = "✏️ Editar Integrante";
-            const c = document.getElementById('equipeCpf'); c.value = u.id; c.disabled = true;
+            const c = document.getElementById('equipeCpf'); c.value = u.cpf || u.id; c.disabled = true;
             document.getElementById('equipeNome').value = u.nome;
             document.getElementById('equipeEmail').value = u.email || '';
             document.getElementById('checkAtivo').checked = u.ativo;
@@ -750,7 +750,7 @@
             if (cpf.length !== 11) return mostrarAviso("O CPF deve conter exatamente 11 números!", "red");
 
             const payload = {
-                id: cpf,
+                cpf: cpf,
                 nome: document.getElementById('equipeNome').value.trim(),
                 email: document.getElementById('equipeEmail').value.trim(),
                 ativo: document.getElementById('checkAtivo').checked,
@@ -758,7 +758,7 @@
                 podeCadastrarItens: document.getElementById('checkAdmin').checked,
                 masterAdmin: document.getElementById('checkMaster').checked
             };
-            if(!payload.id || !payload.nome) return mostrarAviso("Preencha CPF e Nome!", "red");
+            if(!payload.cpf || !payload.nome) return mostrarAviso("Preencha CPF e Nome!", "red");
 
             await setDoc(doc(db, "usuarios", cpf), payload, { merge: true });
             mostrarAviso(modoEdicaoEquipe ? "Alterado!" : "Cadastrado!", "green");
@@ -800,13 +800,16 @@
                 });
             }
 
-            // Consumo (Histórico)
-            const querySnapshot = await getDocs(collection(db, "historico_retiradas"));
+            // Consumo lido diretamente da sua coleção 'historico' do Firebase
+            const querySnapshot = await getDocs(collection(db, "historico"));
             const contagem = {};
             querySnapshot.forEach(d => {
                 const reg = d.data();
-                const chave = `${reg.categoria.toUpperCase()} - ${reg.nome}`;
-                contagem[chave] = (contagem[chave] || 0) + reg.quantidadeRetirada;
+                const cat = (reg.categoria || 'GERAL').toUpperCase();
+                const nome = reg.nome || 'Produto';
+                const qtd = Number(reg.quantidadeRetirada || 0);
+                const chave = `${cat} - ${nome}`;
+                contagem[chave] = (contagem[chave] || 0) + qtd;
             });
 
             const ranking = Object.keys(contagem).map(k => ({ nome: k, total: contagem[k] })).sort((a, b) => b.total - a.total);
